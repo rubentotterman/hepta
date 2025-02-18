@@ -7,7 +7,7 @@ export default function Faktura() {
   }))
 
   return (
-    <div className="container space-y-12 px-4 py-8">
+    <div className="space-y-12">
       <h1 className="text-4xl font-bold">Faktura</h1>
 
       <div>

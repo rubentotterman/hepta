@@ -1,12 +1,28 @@
+"use client"
+
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 
 export default function Home() {
+  const { isLoggedIn } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push("/dashboard")
+    }
+  }, [isLoggedIn, router])
+
+  if (isLoggedIn) return null
+
   return (
-    <div className="flex flex-col gap-20 pb-20">
+    <div className="space-y-20">
       {/* Hero Section */}
-      <section className="container px-4 pt-20">
+      <section className="pt-10">
         <div className="max-w-[800px]">
           <h1 className="text-5xl font-bold leading-tight">Vi er Hepta, utviklere, markedsførere og problemløsere</h1>
           <p className="mt-6 text-lg text-gray-400">
@@ -18,7 +34,7 @@ export default function Home() {
       </section>
 
       {/* What We Do Section */}
-      <section className="container px-4">
+      <section>
         <h2 className="text-3xl font-bold">Hva vi gjør</h2>
         <p className="mt-2 text-gray-400">Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum</p>
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -33,7 +49,7 @@ export default function Home() {
       </section>
 
       {/* Who We Are Section */}
-      <section className="container grid gap-8 px-4 lg:grid-cols-2 lg:gap-12">
+      <section className="grid gap-8 lg:grid-cols-2 lg:gap-12">
         <div className="rounded-lg bg-gray-900 aspect-video" />
         <div className="flex flex-col justify-center">
           <h2 className="text-3xl font-bold">Hvem er vi</h2>
@@ -42,7 +58,7 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section className="container px-4">
+      <section>
         <div className="mx-auto max-w-[600px] text-center">
           <h2 className="text-3xl font-bold">Klar for å samarbeide med oss?</h2>
           <p className="mt-2 text-gray-400">
