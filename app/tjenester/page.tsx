@@ -4,7 +4,8 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight } from "lucide-react"
 
 const services = [
@@ -83,36 +84,60 @@ export default function Tjenester() {
   if (isLoggedIn) return null
 
   return (
-    <div className="space-y-20 pb-20">
+    <div className="container space-y-20 py-20">
       {/* Hero Section */}
-      <section className="space-y-4">
-        <h1 className="text-4xl font-bold">Våre tjenester</h1>
-        <p className="max-w-2xl text-lg text-gray-400">
-          I Hepta skredderføres et levende etter oppgaven, på tvers av kompetanseområder. Når vi samler krefter skaper
-          vi helhetlig kommunikasjon med gode resultater.
-        </p>
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-gray-800 px-6 py-20 text-center sm:px-12">
+        <div className="relative z-10">
+          <h1 className="animate-fade-in bg-gradient-to-br from-white to-gray-400 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent sm:text-6xl">
+            Våre tjenester
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl animate-fade-in text-lg text-gray-400 [animation-delay:200ms]">
+            I Hepta skredderføres et levende etter oppgaven, på tvers av kompetanseområder. Når vi samler krefter skaper
+            vi helhetlig kommunikasjon med gode resultater.
+          </p>
+        </div>
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-500/20 via-transparent to-transparent" />
       </section>
 
       {/* Services Section */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold">Dette er vi gode på</h2>
-        <Accordion type="single" collapsible className="w-full">
+      <section className="space-y-8">
+        <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">Dette er vi gode på</h2>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service, index) => (
-            <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-lg">{service.title}</AccordionTrigger>
-              <AccordionContent>
-                <p className="mb-4">{service.content}</p>
-                <Link
-                  href={`/tjenester/${service.slug}`}
-                  className="inline-flex items-center text-orange-500 hover:text-orange-600"
+            <Card
+              key={index}
+              className="group overflow-hidden border-gray-800 bg-gray-900/50 transition-all duration-300 hover:border-gray-700 hover:bg-gray-900 hover:shadow-lg hover:shadow-orange-500/10"
+            >
+              <CardContent className="p-6">
+                <h3 className="text-2xl font-semibold tracking-tight">{service.title}</h3>
+                <p className="mt-2 text-gray-400">{service.content}</p>
+                <Button
+                  asChild
+                  variant="link"
+                  className="mt-4 h-auto p-0 text-orange-500 transition-colors hover:text-orange-400"
                 >
-                  Les mer
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </AccordionContent>
-            </AccordionItem>
+                  <Link href={`/tjenester/${service.slug}`} className="group inline-flex items-center">
+                    Les mer
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           ))}
-        </Accordion>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="rounded-3xl bg-gradient-to-br from-gray-900 to-gray-800 px-6 py-16 text-center sm:px-12">
+        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Klar for å starte ditt neste prosjekt?</h2>
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-400">
+          La oss sammen skape løsninger som driver din virksomhet fremover. Kontakt oss i dag for en uforpliktende
+          samtale.
+        </p>
+        <Button size="lg" className="mt-8 h-14 px-8 text-lg">
+          Kontakt oss
+          <ArrowRight className="ml-2 h-5 w-5" />
+        </Button>
       </section>
     </div>
   )
