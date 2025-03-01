@@ -1,11 +1,29 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
+import { LoginModal } from "@/components/login-modal"
 
 export function MainNav() {
-  const { isLoggedIn, login, logout } = useAuth()
+  const { isLoggedIn, logout, checkAuth } = useAuth()
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
+  const handleLoginClick = () => {
+    setIsLoginModalOpen(true)
+  }
+
+  const handleLogoutClick = async () => {
+    await logout()
+    router.push("/")
+  }
 
   return (
     <div className="flex w-full items-center justify-between py-4">
@@ -26,10 +44,15 @@ export function MainNav() {
             <Link href="/faktura">Faktura</Link>
           </>
         )}
-        <Button variant="default" className="bg-orange-500 hover:bg-orange-600" onClick={isLoggedIn ? logout : login}>
+        <Button
+          variant="default"
+          className="bg-orange-500 hover:bg-orange-600"
+          onClick={isLoggedIn ? handleLogoutClick : handleLoginClick}
+        >
           {isLoggedIn ? "Logg ut" : "Logg inn"}
         </Button>
       </nav>
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </div>
   )
 }
