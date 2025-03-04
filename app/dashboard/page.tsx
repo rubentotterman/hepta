@@ -12,10 +12,14 @@ import {
   Tooltip,
   Legend,
 } from "chart.js"
+import { useState } from "react"
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend)
 
 export default function Dashboard() {
+  const [apiResponse, setApiResponse] = useState<{ message?: string; error?: string } | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+
   const lineChartOptions = {
     responsive: true,
     plugins: {
@@ -75,7 +79,7 @@ export default function Dashboard() {
     <div className="space-y-8">
       <div>
         <h1 className="text-4xl font-bold">Dashboard oversikt</h1>
-        <p className="mt-2 text-gray-400">Lorem Ipsum Lorem Ipsum</p>
+        <p className="mt-2 text-gray-400">Velkommen til din personlige dashboard</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

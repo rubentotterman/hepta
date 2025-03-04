@@ -1,8 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
+import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -133,19 +131,10 @@ const services = {
 }
 
 export default function ServicePage() {
-  const { isLoggedIn } = useAuth()
-  const router = useRouter()
   const params = useParams()
   const slug = params?.slug as string
   const service = services[slug as keyof typeof services]
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push("/dashboard")
-    }
-  }, [isLoggedIn, router])
-
-  if (isLoggedIn) return null
   if (!service) return null
 
   return (

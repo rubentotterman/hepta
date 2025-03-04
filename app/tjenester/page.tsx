@@ -1,8 +1,5 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -72,17 +69,6 @@ const services = [
 ]
 
 export default function Tjenester() {
-  const { isLoggedIn } = useAuth()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push("/dashboard")
-    }
-  }, [isLoggedIn, router])
-
-  if (isLoggedIn) return null
-
   return (
     <div className="container space-y-20 py-20">
       {/* Hero Section */}

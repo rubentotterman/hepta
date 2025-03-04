@@ -1,24 +1,13 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, Code, Lightbulb, Megaphone } from "lucide-react"
 
 export default function OmOss() {
-  const { isLoggedIn } = useAuth()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push("/dashboard")
-    }
-  }, [isLoggedIn, router])
-
-  if (isLoggedIn) return null
+  // Remove the useEffect that redirects to dashboard
+  // Remove the early return if isLoggedIn
 
   const capabilities = [
     {

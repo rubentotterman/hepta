@@ -1,26 +1,21 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, ArrowUpRight, CheckCircle } from "lucide-react"
 import Image from "next/image"
+import { LoginModal } from "@/components/login-modal"
 
 export default function Home() {
-  const { isLoggedIn } = useAuth()
-  const router = useRouter()
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push("/dashboard")
-    }
-  }, [isLoggedIn, router])
-
-  if (isLoggedIn) return null
+  const handleLoginClick = () => {
+    console.log("Home page login button clicked")
+    setIsLoginModalOpen(true)
+  }
 
   const services = [
     {
@@ -59,10 +54,20 @@ export default function Home() {
               Vårt team av erfarne utviklere, designere og produktledere hjelper deg å realisere ideene dine. Enten du
               er en startup eller et stort selskap, har vi deg dekket.
             </p>
-            <Button className="mt-12 animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]" size="lg">
-              Start nå
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            <div className="mt-12 flex justify-center gap-4">
+              <Button className="animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]" size="lg">
+                Start nå
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button
+                variant="outline"
+                className="animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]"
+                size="lg"
+                onClick={handleLoginClick}
+              >
+                Logg inn
+              </Button>
+            </div>
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
@@ -177,6 +182,9 @@ export default function Home() {
           </CardContent>
         </Card>
       </section>
+
+      {/* Login Modal */}
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </div>
   )
 }
