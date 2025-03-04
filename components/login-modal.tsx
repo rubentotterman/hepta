@@ -16,6 +16,7 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {
+  console.log("LoginModal rendered with isOpen:", isOpen)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -26,8 +27,12 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     e.preventDefault()
     setLoading(true)
     try {
-      await login(email, password)
-      onClose()
+      console.log("Login modal - Attempting login")
+      const result = await login(email, password)
+      console.log("Login modal - Login successful:", result)
+
+      // Force a page refresh to ensure all components update with the new auth state
+      window.location.href = "/dashboard"
     } catch (error) {
       console.error("Error logging in:", error)
       alert("Error logging in. Please check your credentials and try again.")
@@ -36,15 +41,20 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   }
 
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
-    if (error) {
-      console.error("Error logging in with Google:", error)
-      alert("Error logging in with Google. Please try again.")
+    try {
+      console.log("Login modal - Attempting Google login")
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+      if (error) {
+        console.error("Error logging in with Google:", error)
+        alert("Error logging in with Google. Please try again.")
+      }
+    } catch (error) {
+      console.error("Unexpected error during Google login:", error)
     }
   }
 

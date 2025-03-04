@@ -1,10 +1,29 @@
+"use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { PaymentModal } from "@/components/payment-modal"
 
 export default function Faktura() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState("Visa")
+
   const payments = Array.from({ length: 6 }, (_, i) => ({
     date: "1.10.2024",
     amount: "$0.00",
   }))
+
+  const handleSavePaymentMethod = (method: string) => {
+    // Convert method-id to display name
+    const methodMap: Record<string, string> = {
+      visa: "Visa",
+      mastercard: "Mastercard",
+      vipps: "Vipps",
+      bankoverføring: "Bankoverføring",
+    }
+
+    setPaymentMethod(methodMap[method] || method)
+  }
 
   return (
     <div className="space-y-12">
@@ -13,8 +32,10 @@ export default function Faktura() {
       <div>
         <h2 className="text-2xl font-semibold">Betalingsmetode</h2>
         <div className="mt-4 flex items-center justify-between">
-          <div>Visa</div>
-          <Button variant="outline">Legg til betalingsmetode</Button>
+          <div>{paymentMethod}</div>
+          <Button variant="outline" onClick={() => setIsModalOpen(true)}>
+            Endre betalingsmetode
+          </Button>
         </div>
       </div>
 
@@ -29,6 +50,8 @@ export default function Faktura() {
           ))}
         </div>
       </div>
+
+      <PaymentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSavePaymentMethod} />
     </div>
   )
 }
