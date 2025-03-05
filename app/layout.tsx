@@ -6,6 +6,7 @@ import { PageWrapper } from "@/components/page-wrapper"
 import { AuthProvider } from "@/contexts/auth-context"
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
+import Script from "next/script"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -33,6 +34,18 @@ export default async function RootLayout({
             <PageWrapper>{children}</PageWrapper>
           </AuthProvider>
         </ThemeProvider>
+
+        {/* Script to check for test session and set a cookie for the middleware */}
+        <Script id="check-test-session" strategy="beforeInteractive">
+          {`
+            if (typeof window !== 'undefined') {
+              const testSession = localStorage.getItem('testSession');
+              if (testSession) {
+                document.cookie = 'hasTestSession=true; path=/';
+              }
+            }
+          `}
+        </Script>
       </body>
     </html>
   )

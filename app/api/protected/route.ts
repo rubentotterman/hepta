@@ -13,6 +13,19 @@ export async function GET(request: Request) {
   // Extract the token
   const token = authHeader.split(" ")[1]
 
+  // Check if this is a test token
+  if (token.startsWith("test_")) {
+    // Allow test tokens for local development
+    return NextResponse.json({
+      message: "Authenticated successfully with test token",
+      user: {
+        id: "test-user-id",
+        email: "test@example.com",
+      },
+      timestamp: new Date().toISOString(),
+    })
+  }
+
   // Verify the token with Supabase
   const supabase = createRouteHandlerClient({ cookies })
   const { data, error } = await supabase.auth.getUser(token)

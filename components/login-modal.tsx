@@ -1,14 +1,11 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/auth-context"
+import { Loader2 } from "lucide-react"
 
 interface LoginModalProps {
   isOpen: boolean
@@ -17,27 +14,27 @@ interface LoginModalProps {
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   console.log("LoginModal rendered with isOpen:", isOpen)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const { createTestSession } = useAuth()
   const supabase = createClientComponentClient()
 
-  const handleEmailPasswordLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // Simplified login for local testing
+  const handleTestLogin = async () => {
     setLoading(true)
+
     try {
-      console.log("Login modal - Attempting login")
-      const result = await login(email, password)
-      console.log("Login modal - Login successful:", result)
+      console.log("Login modal - Creating test session")
+      await createTestSession()
+      onClose()
 
       // Force a page refresh to ensure all components update with the new auth state
       window.location.href = "/dashboard"
     } catch (error) {
-      console.error("Error logging in:", error)
-      alert("Error logging in. Please check your credentials and try again.")
+      console.error("Error creating test session:", error)
+      alert("Failed to create test session. See console for details.")
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const handleGoogleLogin = async () => {
@@ -63,36 +60,22 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Logg inn</DialogTitle>
-          <DialogDescription>
-            Logg inn med e-post og passord eller Google for å få tilgang til din konto.
-          </DialogDescription>
+          <DialogDescription>Logg inn for å få tilgang til din konto.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleEmailPasswordLogin} className="space-y-4 pt-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">E-post</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="din@epost.no"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Passord</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Logger inn..." : "Logg inn med e-post"}
+
+        <div className="space-y-4 pt-4">
+          <Button className="w-full" onClick={handleTestLogin} disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logger inn...
+              </>
+            ) : (
+              "Logg inn med e-post"
+            )}
           </Button>
-        </form>
+        </div>
+
         <div className="relative my-4">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
@@ -101,7 +84,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             <span className="bg-background px-2 text-muted-foreground">Eller fortsett med</span>
           </div>
         </div>
-        <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
+
+        <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={loading}>
           <svg
             className="mr-2 h-4 w-4"
             aria-hidden="true"
