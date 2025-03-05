@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -8,17 +8,21 @@ import { useAuth } from "@/contexts/auth-context"
 import { LoginModal } from "@/components/login-modal"
 
 export function MainNav() {
-  const { isLoggedIn, logout, checkAuth, user } = useAuth()
+  const { isLoggedIn, logout, user } = useAuth()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
 
+  // Use a ref to prevent unnecessary re-renders
+  const initialRenderDone = useRef(false)
+
+  // Only log auth state on initial render and when it changes
   useEffect(() => {
-    console.log("MainNav - Auth state:", { isLoggedIn, user })
-    checkAuth().then(({ isLoggedIn, user }) => {
-      console.log("MainNav - Auth state after checkAuth:", { isLoggedIn, user })
-    })
-  }, [checkAuth, isLoggedIn, user])
+    if (!initialRenderDone.current) {
+      console.log("MainNav - Initial auth state:", { isLoggedIn, user })
+      initialRenderDone.current = true
+    }
+  }, [isLoggedIn, user])
 
   const handleLoginClick = () => {
     console.log("Login button clicked, opening modal")
@@ -31,18 +35,6 @@ export function MainNav() {
       router.push("/")
     }
   }
-
-  // Force re-render when auth state changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      checkAuth()
-    }
-
-    window.addEventListener("storage", handleStorageChange)
-    return () => {
-      window.removeEventListener("storage", handleStorageChange)
-    }
-  }, [checkAuth])
 
   return (
     <div className="flex w-full items-center justify-between py-4">
