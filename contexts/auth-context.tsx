@@ -38,8 +38,7 @@ export function AuthProvider({
   children,
   serverSession,
 }: { children: React.ReactNode; serverSession: Session | null }) {
-  // Start in a logged out state regardless of server session
-  // This ensures the app always starts logged out when run locally
+  // Start with logged out state
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [sessionToken, setSessionToken] = useState<string | null>(null)

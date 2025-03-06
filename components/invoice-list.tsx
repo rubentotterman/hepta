@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatAmountFromStripe } from "@/lib/stripe"
 import { useRouter } from "next/navigation"
-import { getSessionToken } from "@/lib/utils"
+import { useAuth } from "@/contexts/auth-context"
 
 interface Invoice {
   id: string
@@ -25,14 +25,48 @@ export function InvoiceList() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const { sessionToken, isLoggedIn } = useAuth()
 
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
         setIsLoading(true)
+        console.log("Fetching invoices with auth state:", { isLoggedIn, hasToken: !!sessionToken })
+
+        // For development, if we don't have a real session, use mock data
+        if (process.env.NODE_ENV === "development" && (!isLoggedIn || !sessionToken)) {
+          console.log("Using mock invoice data in development mode")
+          // Mock data for development
+          const mockInvoices = [
+            {
+              id: "in_mock_1",
+              number: "MOCK001",
+              amount_due: 10000, // 100.00 in cents
+              currency: "nok",
+              status: "open",
+              due_date: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days from now
+              hosted_invoice_url: "#",
+              created: Math.floor(Date.now() / 1000) - 86400, // 1 day ago
+            },
+            {
+              id: "in_mock_2",
+              number: "MOCK002",
+              amount_due: 25000, // 250.00 in cents
+              currency: "nok",
+              status: "paid",
+              due_date: Math.floor(Date.now() / 1000) + 86400 * 15, // 15 days from now
+              hosted_invoice_url: "#",
+              created: Math.floor(Date.now() / 1000) - 86400 * 7, // 7 days ago
+            },
+          ]
+          setInvoices(mockInvoices)
+          setIsLoading(false)
+          return
+        }
+
         const response = await fetch("/api/stripe/get-invoices", {
           headers: {
-            Authorization: `Bearer ${getSessionToken() || ""}`,
+            Authorization: `Bearer ${sessionToken || "test_session"}`,
           },
         })
 
@@ -54,7 +88,7 @@ export function InvoiceList() {
     }
 
     fetchInvoices()
-  }, [])
+  }, [isLoggedIn, sessionToken])
 
   const handlePayInvoice = (invoiceId: string) => {
     router.push(`/faktura/betal?id=${invoiceId}`)

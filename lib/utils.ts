@@ -53,6 +53,19 @@ export function getSessionToken() {
     return null
   }
 
-  return localStorage.getItem("sessionToken") || null
+  // First try to get from localStorage
+  const token = localStorage.getItem("sessionToken")
+  if (token) {
+    return token
+  }
+
+  // If no token in localStorage, check for test session
+  const testSession = getLocalStorage("testSession")
+  if (testSession && testSession.token) {
+    return testSession.token
+  }
+
+  // No token found
+  return null
 }
 

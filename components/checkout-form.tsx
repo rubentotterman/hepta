@@ -32,6 +32,15 @@ export function CheckoutForm({ amount, onSuccess, onError }: CheckoutFormProps) 
     setErrorMessage(null)
 
     try {
+      // Check if we're using a mock client secret (starts with pi_mock_)
+      if (process.env.NODE_ENV === "development" && elements._commonOptions.clientSecret?.startsWith("pi_mock_")) {
+        console.log("Using mock payment flow in development mode")
+        // Simulate successful payment
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+        onSuccess?.()
+        return
+      }
+
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
