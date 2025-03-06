@@ -7,7 +7,7 @@ import { cookies } from "next/headers"
 export async function POST(req: Request) {
   const body = await req.text()
   const signature = headers().get("stripe-signature") as string
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  const webhookSecret = "whsec_b8ed9fefdf1bf740ac67575cd3c33ce604f7d88d0b8017955301518a5589446c"
 
   let event
 

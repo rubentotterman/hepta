@@ -3,10 +3,14 @@ import Stripe from "stripe"
 // Check if we're in development mode
 const isDevelopment = process.env.NODE_ENV === "development"
 
-// Initialize Stripe with the secret key
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2023-10-16", // Use the latest API version
-})
+// Initialize Stripe with the provided secret key
+export const stripe = new Stripe(
+  process.env.STRIPE_SECRET_KEY ||
+    "sk_test_51NTj6ECBZbubqLlTavZEEYr8YqLtMwVYfzIY8EyT3kXY2yuSv6z7hsiQ2omjZnQ1TMIFee3emq7HIcMAe4rWdAoc00CZhpLtEf",
+  {
+    apiVersion: "2023-10-16", // Use the latest API version
+  },
+)
 
 // Log Stripe operations in development mode
 const logStripeOperation = (operation: string, ...args: any[]) => {
@@ -32,9 +36,6 @@ export const createCustomer = async (email: string, name?: string) => {
 
     // In development mode, use test mode
     if (isDevelopment) {
-      console.log("⚠️ Using test mode for Stripe operations")
-
-      // In development, we  {
       console.log("⚠️ Using test mode for Stripe operations")
 
       // In development, we can mock the customer creation
@@ -209,8 +210,9 @@ export const payInvoice = async (invoiceId: string) => {
 
 // Create a test invoice (for development only)
 export const createTestInvoice = async (customerId: string) => {
-  if (!isDevelopment && !process.env.ALLOW_TEST_INVOICES) {
-    throw new Error("Test invoices can only be created in development mode or with ALLOW_TEST_INVOICES enabled")
+  // Only allow this in development mode
+  if (!isDevelopment) {
+    throw new Error("Test invoices can only be created in development mode")
   }
 
   if (!customerId) {
@@ -237,6 +239,9 @@ export const createTestInvoice = async (customerId: string) => {
         created: Math.floor(Date.now() / 1000),
       }
     }
+
+    // The code below will only run if isDevelopment is false, which won't happen due to the check at the beginning
+    // But we'll keep it for completeness
 
     // Create an invoice item
     const invoiceItem = await stripe.invoiceItems.create({
