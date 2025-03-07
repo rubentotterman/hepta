@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { createPaymentIntent } from "@/lib/stripe"
+import { getOrCreateCustomerId } from "@/lib/stripe-helpers"
 
 export async function POST(req: Request) {
   try {
@@ -24,19 +25,17 @@ export async function POST(req: Request) {
 
     const user = session.user
 
-    // Get the user's Stripe customer ID
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("stripe_customer_id")
-      .eq("id", user.id)
-      .single()
-
-    if (profileError) {
-      throw profileError
+    // Get or create the customer ID
+    let customerId
+    try {
+      customerId = await getOrCreateCustomerId(user.id, user.email)
+    } catch (error) {
+      console.error("Error getting/creating customer ID:", error)
+      return NextResponse.json({ error: "Failed to get or create customer" }, { status: 500 })
     }
 
     // Create the payment intent
-    const paymentIntent = await createPaymentIntent(amount, currency, profile?.stripe_customer_id)
+    const paymentIntent = await createPaymentIntent(amount, currency, customerId)
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,

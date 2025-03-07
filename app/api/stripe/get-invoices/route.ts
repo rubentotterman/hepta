@@ -5,6 +5,9 @@ import { getCustomerInvoices } from "@/lib/stripe"
 
 export async function GET(req: Request) {
   try {
+    // Remove the forced development mode
+    // process.env.NODE_ENV = "development";
+
     const supabase = createRouteHandlerClient({ cookies })
 
     // Check for test session in headers
@@ -16,6 +19,8 @@ export async function GET(req: Request) {
       authHeader ? "Present" : "Missing",
       "Test session:",
       isTestSession ? "Yes" : "No",
+      "NODE_ENV:",
+      process.env.NODE_ENV,
     )
 
     // Get the current user from Supabase if not a test session
@@ -27,34 +32,44 @@ export async function GET(req: Request) {
     if (!session && isTestSession) {
       console.log("Using test user for fetching invoices")
 
-      // For test sessions, return some mock invoices
-      return NextResponse.json({
-        invoices: [
-          {
-            id: "in_test_1",
-            number: "TEST001",
-            amount_due: 10000, // 100.00 in cents
-            currency: "nok",
-            status: "open",
-            due_date: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days from now
-            hosted_invoice_url: "#",
-            created: Math.floor(Date.now() / 1000) - 86400, // 1 day ago
-          },
-          {
-            id: "in_test_2",
-            number: "TEST002",
-            amount_due: 25000, // 250.00 in cents
-            currency: "nok",
-            status: "paid",
-            due_date: Math.floor(Date.now() / 1000) + 86400 * 15, // 15 days from now
-            hosted_invoice_url: "#",
-            created: Math.floor(Date.now() / 1000) - 86400 * 7, // 7 days ago
-          },
-        ],
-      })
+      // For test sessions, we'll try to fetch real Stripe data
+      // You'll need to set up a test customer ID in your profiles table
+      const testCustomerId = "cus_your_test_customer_id" // Replace with your actual test customer ID from Stripe
+
+      try {
+        const invoices = await getCustomerInvoices(testCustomerId)
+        return NextResponse.json({ invoices })
+      } catch (stripeError) {
+        console.error("Error fetching from Stripe:", stripeError)
+        // Fall back to mock data if Stripe call fails
+        return NextResponse.json({
+          invoices: [
+            {
+              id: "in_test_1",
+              number: "TEST001",
+              amount_due: 10000, // 100.00 in cents
+              currency: "nok",
+              status: "open",
+              due_date: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days from now
+              hosted_invoice_url: "#",
+              created: Math.floor(Date.now() / 1000) - 86400, // 1 day ago
+            },
+            {
+              id: "in_test_2",
+              number: "TEST002",
+              amount_due: 25000, // 250.00 in cents
+              currency: "nok",
+              status: "paid",
+              due_date: Math.floor(Date.now() / 1000) + 86400 * 15, // 15 days from now
+              hosted_invoice_url: "#",
+              created: Math.floor(Date.now() / 1000) - 86400 * 7, // 7 days ago
+            },
+          ],
+        })
+      }
     }
 
-    if (!session && !isTestSession) {
+    if (!session) {
       console.log("No valid session found for invoice fetch")
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -96,12 +111,25 @@ export async function GET(req: Request) {
     return NextResponse.json({ invoices })
   } catch (error) {
     console.error("Error fetching invoices:", error)
-    return NextResponse.json(
-      {
-        error: `Failed to fetch invoices: ${error instanceof Error ? error.message : String(error)}`,
-      },
-      { status: 500 },
-    )
+
+    // Detailed error logging
+    if (error instanceof Error) {
+      console.error("Error name:", error.name)
+      console.error("Error message:", error.message)
+      console.error("Error stack:", error.stack)
+    }
+
+    // Improved error handling to avoid [object Object] in the error message
+    let errorMessage = "Failed to fetch invoices"
+    if (error instanceof Error) {
+      errorMessage += ": " + error.message
+    } else if (typeof error === "string") {
+      errorMessage += ": " + error
+    } else {
+      errorMessage += ": " + JSON.stringify(error)
+    }
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
 
