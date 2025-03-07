@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { LoginModal } from "@/components/login-modal"
 
 export function MainNav() {
-  const { isLoggedIn, logout, user } = useAuth()
+  const { isLoggedIn, logout, user, userRole } = useAuth()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
@@ -19,11 +19,12 @@ export function MainNav() {
   // Only log auth state on initial render and when it changes
   useEffect(() => {
     if (!initialRenderDone.current) {
-      console.log("MainNav - Initial auth state:", { isLoggedIn, user })
+      console.log("MainNav - Initial auth state:", { isLoggedIn, user, userRole })
       initialRenderDone.current = true
     }
-  }, [isLoggedIn, user])
+  }, [isLoggedIn, user, userRole])
 
+  // In the handleLoginClick function, make sure it's properly setting the modal state
   const handleLoginClick = () => {
     console.log("Login button clicked, opening modal")
     setIsLoginModalOpen(true)
@@ -67,6 +68,15 @@ export function MainNav() {
             >
               Innstillinger
             </Link>
+            {/* Only show Admin link for admin users */}
+            {(userRole === "admin" || process.env.NODE_ENV === "development") && (
+              <Link
+                href="/admin/users"
+                className={`font-medium ${pathname.startsWith("/admin") ? "text-orange-500" : "text-white"}`}
+              >
+                Admin
+              </Link>
+            )}
           </>
         ) : (
           <>
@@ -81,6 +91,7 @@ export function MainNav() {
             </Link>
           </>
         )}
+        {/* Make sure the login button is using this handler */}
         <Button
           variant="default"
           className="bg-orange-500 hover:bg-orange-600"
@@ -89,6 +100,7 @@ export function MainNav() {
           {isLoggedIn ? "Logg ut" : "Logg inn"}
         </Button>
       </nav>
+      {/* Make sure the login modal is properly included at the bottom of the component */}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </div>
   )

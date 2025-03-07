@@ -8,10 +8,12 @@ import { useRouter } from "next/navigation"
 import type { User, Session } from "@supabase/auth-helpers-nextjs"
 import { getLocalStorage, setLocalStorage, removeLocalStorage } from "@/lib/utils"
 
+// Update the AuthContextType interface to include role
 interface AuthContextType {
   isLoggedIn: boolean
   user: User | null
   sessionToken: string | null
+  userRole: string | null // Add this line
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
   checkAuth: () => Promise<{ isLoggedIn: boolean; user: User | null }>
@@ -20,13 +22,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Test user data for local development
+// Add role to the TEST_USER object
 const TEST_USER = {
   id: "test-user-id",
   email: "test@example.com",
   user_metadata: {
     full_name: "Test User",
   },
+  role: "admin", // Add this line
 }
 
 // Generate a random token for test sessions
@@ -42,13 +45,45 @@ export function AuthProvider({
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [sessionToken, setSessionToken] = useState<string | null>(null)
+  // In the AuthProvider component, add a state for userRole
+  const [userRole, setUserRole] = useState<string | null>(null)
   const [supabase] = useState(() => createClientComponentClient())
   const router = useRouter()
 
   // Use a ref to track if initial auth check has been performed
   const initialAuthCheckDone = useRef(false)
 
-  // Improve the auth state management
+  const ensureStripeCustomer = useCallback(async (user: User) => {
+    if (!user || !user.email) return null
+
+    try {
+      const response = await fetch("/api/stripe/create-customer-for-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          email: user.email,
+          name: user.user_metadata?.full_name || user.email.split("@")[0],
+        }),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("Failed to create Stripe customer:", errorText)
+        return null
+      }
+
+      const { customerId } = await response.json()
+      return customerId
+    } catch (error) {
+      console.error("Error ensuring Stripe customer:", error)
+      return null
+    }
+  }, [])
+
+  // Update the checkAuth function to fetch and set the user's role
   const checkAuth = useCallback(async () => {
     console.log("Checking auth state...")
 
@@ -60,9 +95,15 @@ export function AuthProvider({
         setIsLoggedIn(true)
         setUser(testSession.user as User)
         setSessionToken(testSession.token)
+        setUserRole(testSession.user.role || "customer") // Set role from test session
 
         // Set a cookie to indicate we have a test session
         document.cookie = "hasTestSession=true; path=/"
+
+        // Ensure the test user has a Stripe customer ID
+        if (process.env.NODE_ENV === "development") {
+          ensureStripeCustomer(testSession.user as User)
+        }
 
         return { isLoggedIn: true, user: testSession.user as User }
       } catch (error) {
@@ -83,15 +124,37 @@ export function AuthProvider({
       setIsLoggedIn(true)
       setUser(session.user)
       setSessionToken(session.access_token)
+
+      // Fetch user role from profiles table
+      try {
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single()
+
+        if (!error && profile) {
+          setUserRole(profile.role || "customer")
+        } else {
+          setUserRole("customer") // Default role
+        }
+      } catch (error) {
+        console.error("Error fetching user role:", error)
+        setUserRole("customer") // Default role
+      }
+
+      // Ensure the user has a Stripe customer ID
+      ensureStripeCustomer(session.user)
     } else {
       console.log("Setting logged in state to false")
       setIsLoggedIn(false)
       setUser(null)
       setSessionToken(null)
+      setUserRole(null)
     }
 
     return { isLoggedIn: !!session, user: session?.user || null }
-  }, [supabase.auth])
+  }, [supabase.auth, ensureStripeCustomer])
 
   // Only run the initial auth check once when the component mounts
   useEffect(() => {
@@ -132,13 +195,16 @@ export function AuthProvider({
     }
   }, [supabase.auth])
 
-  // Create a test session for local development
+  // Update the createTestSession function to include role
   const createTestSession = async () => {
     console.log("Creating test session")
 
     const token = generateTestToken()
     const testSession = {
-      user: TEST_USER,
+      user: {
+        ...TEST_USER,
+        role: "admin", // Ensure the test user has admin role
+      },
       token: token,
       created_at: new Date().toISOString(),
     }
@@ -154,8 +220,14 @@ export function AuthProvider({
     setIsLoggedIn(true)
     setUser(TEST_USER as User)
     setSessionToken(token)
+    setUserRole("admin") // Set role for test session
 
     console.log("Test session created:", testSession)
+
+    // Ensure the test user has a Stripe customer ID
+    if (process.env.NODE_ENV === "development") {
+      await ensureStripeCustomer(TEST_USER as User)
+    }
   }
 
   // Keep the original login function for completeness
@@ -213,12 +285,14 @@ export function AuthProvider({
     router.push("/")
   }
 
+  // Include userRole in the context value
   return (
     <AuthContext.Provider
       value={{
         isLoggedIn,
         user,
         sessionToken,
+        userRole, // Add this line
         login,
         logout,
         checkAuth,

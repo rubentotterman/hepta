@@ -33,9 +33,12 @@ export function InvoiceList() {
         setIsLoading(true)
         console.log("Fetching invoices with auth state:", { isLoggedIn, hasToken: !!sessionToken })
 
+        // Set to false to use real Stripe data
+        const useMockData = false
+
         // For development, if we don't have a real session, use mock data
-        if (process.env.NODE_ENV === "development" && (!isLoggedIn || !sessionToken)) {
-          console.log("Using mock invoice data in development mode")
+        if (useMockData) {
+          console.log("Using mock invoice data")
           // Mock data for development
           const mockInvoices = [
             {
@@ -71,7 +74,8 @@ export function InvoiceList() {
         })
 
         if (!response.ok) {
-          const errorText = await response.text()
+          const errorData = await response.json().catch(() => null)
+          const errorText = errorData?.error || (await response.text()) || `HTTP error ${response.status}`
           console.error("Failed to fetch invoices:", errorText)
           throw new Error(`Failed to fetch invoices: ${errorText}`)
         }

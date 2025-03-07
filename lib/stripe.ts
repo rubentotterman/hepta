@@ -111,32 +111,7 @@ export const getCustomerInvoices = async (customerId: string) => {
   try {
     logStripeOperation("getCustomerInvoices", { customerId })
 
-    // In development mode, return mock invoices
-    if (isDevelopment) {
-      return [
-        {
-          id: "in_test_1",
-          number: "TEST001",
-          amount_due: 10000, // 100.00 in cents
-          currency: "nok",
-          status: "open",
-          due_date: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days from now
-          hosted_invoice_url: "#",
-          created: Math.floor(Date.now() / 1000) - 86400, // 1 day ago
-        },
-        {
-          id: "in_test_2",
-          number: "TEST002",
-          amount_due: 25000, // 250.00 in cents
-          currency: "nok",
-          status: "paid",
-          due_date: Math.floor(Date.now() / 1000) + 86400 * 15, // 15 days from now
-          hosted_invoice_url: "#",
-          created: Math.floor(Date.now() / 1000) - 86400 * 7, // 7 days ago
-        },
-      ]
-    }
-
+    // Always use real Stripe API calls
     const invoices = await stripe.invoices.list({
       customer: customerId,
       limit: 100,
