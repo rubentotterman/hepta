@@ -4,6 +4,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight } from "lucide-react"
+import { ContactFormModal } from "@/components/contact-form-modal"
+import { useState } from "react"
 
 const services = [
   {
@@ -69,6 +71,8 @@ const services = [
 ]
 
 export default function Tjenester() {
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false)
+
   return (
     <div className="container space-y-20 py-20">
       {/* Hero Section */}
@@ -120,11 +124,14 @@ export default function Tjenester() {
           La oss sammen skape løsninger som driver din virksomhet fremover. Kontakt oss i dag for en uforpliktende
           samtale.
         </p>
-        <Button size="lg" className="mt-8 h-14 px-8 text-lg">
+        <Button size="lg" className="mt-8 h-14 px-8 text-lg" onClick={() => setIsContactModalOpen(true)}>
           Kontakt oss
           <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </section>
+
+      {/* Contact Form Modal */}
+      <ContactFormModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
     </div>
   )
 }

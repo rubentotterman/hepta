@@ -4,10 +4,13 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, Code, Lightbulb, Megaphone } from "lucide-react"
+import { ContactFormModal } from "@/components/contact-form-modal"
+import { useState } from "react"
 
 export default function OmOss() {
   // Remove the useEffect that redirects to dashboard
   // Remove the early return if isLoggedIn
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false)
 
   const capabilities = [
     {
@@ -92,7 +95,7 @@ export default function OmOss() {
 
       {/* Mission Statement */}
       <section className="rounded-3xl bg-gradient-to-br from-gray-900 to-gray-800 px-6 py-16 text-center sm:px-12">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Vår Misjon</h2>
+        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Vår Visjon</h2>
         <p className="mx-auto mt-4 max-w-3xl text-lg text-gray-400">
           Hepta er dedikert til å drive digital innovasjon og vekst for våre klienter. Ved å kombinere ekspertise innen
           markedsføring, utvikling og AI, skaper vi helhetlige løsninger som gir målbare resultater og langsiktig
@@ -107,11 +110,14 @@ export default function OmOss() {
           La oss sammen skape innovative løsninger som driver din virksomhet fremover. Kontakt oss i dag for en
           uforpliktende samtale om ditt neste prosjekt.
         </p>
-        <Button size="lg" className="mt-8 h-14 px-8 text-lg">
+        <Button size="lg" className="mt-8 h-14 px-8 text-lg" onClick={() => setIsContactModalOpen(true)}>
           Kontakt oss
           <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </section>
+
+      {/* Contact Form Modal */}
+      <ContactFormModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
     </div>
   )
 }

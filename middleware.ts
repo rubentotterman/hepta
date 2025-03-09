@@ -22,23 +22,27 @@ export async function middleware(req: NextRequest) {
   // Check for test session in cookies
   const hasTestSession = req.cookies.get("hasTestSession")?.value === "true"
 
+  // Check for session cookie
+  const hasSessionCookie = req.cookies.get("session")?.value === "authenticated"
+
   console.log("Middleware check:", {
     path: req.nextUrl.pathname,
     isProtectedRoute,
     isAdminRoute,
     hasSession: !!session,
     hasTestSession,
+    hasSessionCookie,
   })
 
   // For admin routes, check if the user has admin role
   if (isAdminRoute) {
     // In development with test session, allow access
-    if (process.env.NODE_ENV === "development" && hasTestSession) {
+    if (process.env.NODE_ENV === "development" && (hasTestSession || hasSessionCookie)) {
       return res
     }
 
     // Check if user is authenticated
-    if (!session) {
+    if (!session && !hasSessionCookie) {
       console.log("Redirecting to home - no valid session for admin route")
       const redirectUrl = req.nextUrl.clone()
       redirectUrl.pathname = "/"
@@ -64,7 +68,7 @@ export async function middleware(req: NextRequest) {
     }
   }
   // For regular protected routes, just check authentication
-  else if (isProtectedRoute && !session && !hasTestSession) {
+  else if (isProtectedRoute && !session && !hasTestSession && !hasSessionCookie) {
     console.log("Redirecting to home - no valid session for protected route")
     // Redirect to login if accessing protected route without auth
     const redirectUrl = req.nextUrl.clone()

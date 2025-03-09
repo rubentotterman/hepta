@@ -13,7 +13,7 @@ interface AuthContextType {
   isLoggedIn: boolean
   user: User | null
   sessionToken: string | null
-  userRole: string | null // Add this line
+  userRole: string | null
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
   checkAuth: () => Promise<{ isLoggedIn: boolean; user: User | null }>
@@ -35,6 +35,16 @@ const TEST_USER = {
 // Generate a random token for test sessions
 const generateTestToken = () => {
   return "test_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+}
+
+// Helper function to get cookie value
+const getCookie = (name: string): string | null => {
+  if (typeof document === "undefined") return null
+
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop()?.split(";").shift() || null
+  return null
 }
 
 export function AuthProvider({
@@ -87,6 +97,12 @@ export function AuthProvider({
   const checkAuth = useCallback(async () => {
     console.log("Checking auth state...")
 
+    // First check for a session cookie
+    const sessionCookie = getCookie("session")
+    if (sessionCookie === "authenticated") {
+      console.log("Found authenticated session cookie")
+    }
+
     // First check for a test session
     const testSession = getLocalStorage("testSession")
     if (testSession) {
@@ -125,6 +141,9 @@ export function AuthProvider({
       setUser(session.user)
       setSessionToken(session.access_token)
 
+      // Set session cookie
+      document.cookie = `session=authenticated; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict; Secure`
+
       // Fetch user role from profiles table
       try {
         const { data: profile, error } = await supabase
@@ -151,6 +170,9 @@ export function AuthProvider({
       setUser(null)
       setSessionToken(null)
       setUserRole(null)
+
+      // Clear session cookie
+      document.cookie = "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure"
     }
 
     return { isLoggedIn: !!session, user: session?.user || null }
@@ -178,6 +200,9 @@ export function AuthProvider({
 
         // Store session token in localStorage for easy access
         setLocalStorage("sessionToken", session.access_token)
+
+        // Set session cookie
+        document.cookie = `session=authenticated; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict; Secure`
       } else {
         // Don't log out if we have a test session
         if (!getLocalStorage("testSession")) {
@@ -186,6 +211,9 @@ export function AuthProvider({
           setUser(null)
           setSessionToken(null)
           removeLocalStorage("sessionToken")
+
+          // Clear session cookie
+          document.cookie = "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure"
         }
       }
     })
@@ -214,7 +242,10 @@ export function AuthProvider({
     setLocalStorage("sessionToken", token)
 
     // Set a cookie to indicate we have a test session
-    document.cookie = "hasTestSession=true; path=/"
+    document.cookie = "hasTestSession=true; path=/; SameSite=Strict; Secure"
+
+    // Set a session cookie that expires in 7 days
+    document.cookie = `session=authenticated; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict; Secure`
 
     // Update the auth state
     setIsLoggedIn(true)
@@ -255,6 +286,9 @@ export function AuthProvider({
         // Store session token in localStorage for easy access
         setLocalStorage("sessionToken", data.session.access_token)
 
+        // Set session cookie
+        document.cookie = `session=authenticated; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict; Secure`
+
         console.log("Auth state updated after login")
       }
 
@@ -271,7 +305,10 @@ export function AuthProvider({
     removeLocalStorage("sessionToken")
 
     // Clear the test session cookie
-    document.cookie = "hasTestSession=false; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    document.cookie = "hasTestSession=false; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure"
+
+    // Clear session cookie
+    document.cookie = "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure"
 
     // Also clear Supabase session
     await supabase.auth.signOut()
