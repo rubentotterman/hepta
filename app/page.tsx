@@ -8,13 +8,20 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, ArrowUpRight, CheckCircle } from "lucide-react"
 import Image from "next/image"
 import { LoginModal } from "@/components/login-modal"
+import { ContactFormModal } from "@/components/contact-form-modal"
 
 export default function Home() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false)
 
   const handleLoginClick = () => {
     console.log("Home page login button clicked")
     setIsLoginModalOpen(true)
+  }
+
+  const handleStartClick = () => {
+    console.log("Start nå button clicked")
+    setIsContactModalOpen(true)
   }
 
   const services = [
@@ -55,7 +62,11 @@ export default function Home() {
               er en startup eller et stort selskap, har vi deg dekket.
             </p>
             <div className="mt-12 flex justify-center gap-4">
-              <Button className="animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]" size="lg">
+              <Button
+                className="animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]"
+                size="lg"
+                onClick={handleStartClick}
+              >
                 Start nå
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -173,7 +184,7 @@ export default function Home() {
                   placeholder="Melding"
                   className="min-h-[150px] border-gray-800 bg-gray-950/50 px-4 py-3 text-base transition-colors hover:border-gray-700 focus:border-orange-500"
                 />
-                <Button size="lg" className="mt-6 w-full text-lg sm:w-auto">
+                <Button size="lg" className="mt-6 w-full text-lg sm:w-auto" onClick={handleStartClick}>
                   Start nå
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -185,6 +196,9 @@ export default function Home() {
 
       {/* Login Modal */}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+
+      {/* Contact Form Modal */}
+      <ContactFormModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
     </div>
   )
 }
