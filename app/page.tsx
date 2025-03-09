@@ -166,33 +166,7 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section className="container pb-20">
-        <Card className="overflow-hidden border-gray-800 bg-gray-900/50">
-          <CardContent className="p-8 sm:p-12">
-            <div className="mx-auto max-w-[600px] text-center">
-              <h2 className="text-4xl font-bold tracking-tight">Klar for å samarbeide med oss?</h2>
-              <p className="mt-4 text-xl text-gray-400">
-                Fortell oss litt om prosjektet ditt, så tar vi kontakt innen 24 timer
-              </p>
-              <form className="mt-8 space-y-4">
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  className="h-12 border-gray-800 bg-gray-950/50 px-4 text-base transition-colors hover:border-gray-700 focus:border-orange-500"
-                />
-                <Textarea
-                  placeholder="Melding"
-                  className="min-h-[150px] border-gray-800 bg-gray-950/50 px-4 py-3 text-base transition-colors hover:border-gray-700 focus:border-orange-500"
-                />
-                <Button size="lg" className="mt-6 w-full text-lg sm:w-auto" onClick={handleStartClick}>
-                  Start nå
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </form>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+      <ContactSection isLoginModalOpen={isLoginModalOpen} setIsLoginModalOpen={setIsLoginModalOpen} />
 
       {/* Login Modal */}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
@@ -200,6 +174,37 @@ export default function Home() {
       {/* Contact Form Modal */}
       <ContactFormModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
     </div>
+  )
+}
+
+import DynamicForm from "@/components/ui/form"
+
+interface ContactSectionProps {
+  isLoginModalOpen: boolean;
+  setIsLoginModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function ContactSection({ isLoginModalOpen, setIsLoginModalOpen }: ContactSectionProps) {
+  return (
+    <section className="container pb-20">
+      <Card className="overflow-hidden border-gray-800 bg-gray-900/50">
+        <CardContent className="p-8 sm:p-12">
+          <div className="mx-auto max-w-[600px] text-center">
+            <h2 className="text-4xl font-bold tracking-tight">Klar for å samarbeide med oss?</h2>
+            <p className="mt-4 text-xl text-gray-400">
+              Fortell oss litt om prosjektet ditt, så tar vi kontakt innen 24 timer
+            </p>
+            
+            <DynamicForm />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Login Modal */}
+      {isLoginModalOpen && (
+        <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+      )}
+    </section>
   )
 }
 
