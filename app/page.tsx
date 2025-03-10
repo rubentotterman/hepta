@@ -9,19 +9,18 @@ import { ArrowRight, ArrowUpRight, CheckCircle } from "lucide-react"
 import Image from "next/image"
 import { LoginModal } from "@/components/login-modal"
 import { ContactFormModal } from "@/components/contact-form-modal"
-import Link from "next/link"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function Home() {
+  const { isLoggedIn } = useAuth()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isContactModalOpen, setIsContactModalOpen] = useState(false)
 
   const handleLoginClick = () => {
-    console.log("Home page login button clicked")
     setIsLoginModalOpen(true)
   }
 
   const handleStartClick = () => {
-    console.log("Start nå button clicked")
     setIsContactModalOpen(true)
   }
 
@@ -50,7 +49,6 @@ export default function Home() {
 
   return (
     <div className="space-y-32">
-      {/* Hero Section */}
       <section className="relative overflow-hidden pt-20">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-500/20 via-background to-background" />
         <div className="container relative">
@@ -71,21 +69,22 @@ export default function Home() {
                 Start nå
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button
-                variant="outline"
-                className="animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]"
-                size="lg"
-                onClick={handleLoginClick}
-              >
-                Logg inn
-              </Button>
+              {!isLoggedIn && (
+                <Button
+                  variant="outline"
+                  className="animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]"
+                  size="lg"
+                  onClick={handleLoginClick}
+                >
+                  Logg inn
+                </Button>
+              )}
             </div>
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
       </section>
 
-      {/* What We Do Section */}
       <section className="container">
         <div className="text-center">
           <h2 className="text-4xl font-bold tracking-tight">Hva vi gjør</h2>
@@ -126,7 +125,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Who We Are Section */}
       <section className="container">
         <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800">
           <div className="grid gap-8 p-8 lg:grid-cols-2 lg:gap-16 lg:p-12">
@@ -166,7 +164,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Contact Section */}
       <section className="container pb-20">
         <Card className="overflow-hidden border-gray-800 bg-gray-900/50">
           <CardContent className="p-8 sm:p-12">
@@ -175,28 +172,29 @@ export default function Home() {
               <p className="mt-4 text-xl text-gray-400">
                 Fortell oss litt om prosjektet ditt, så tar vi kontakt innen 24 timer
               </p>
-              <div className="mt-8">
-                <Button 
-                  size="lg" 
-                  className="h-14 px-8 text-lg group"
-                  asChild
-                >
-                  <Link href="/contact">
-                    Kontakt oss
-                    <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
-                  </Link>
+              <form className="mt-8 space-y-4">
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  className="h-12 border-gray-800 bg-gray-950/50 px-4 text-base transition-colors hover:border-gray-700 focus:border-orange-500"
+                />
+                <Textarea
+                  placeholder="Melding"
+                  className="min-h-[150px] border-gray-800 bg-gray-950/50 px-4 py-3 text-base transition-colors hover:border-gray-700 focus:border-orange-500"
+                />
+                <Button size="lg" className="mt-6 w-full text-lg sm:w-auto" onClick={handleStartClick}>
+                  Start nå
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-              </div>
+              </form>
             </div>
           </CardContent>
         </Card>
       </section>
 
-      {/* Login Modal */}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
-
-      {/* Contact Form Modal */}
       <ContactFormModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
     </div>
   )
 }
+
