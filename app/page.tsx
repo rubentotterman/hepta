@@ -9,6 +9,7 @@ import { ArrowRight, ArrowUpRight, CheckCircle } from "lucide-react"
 import Image from "next/image"
 import { LoginModal } from "@/components/login-modal"
 import { ContactFormModal } from "@/components/contact-form-modal"
+import Link from "next/link"
 
 export default function Home() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
@@ -166,7 +167,30 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <ContactSection isLoginModalOpen={isLoginModalOpen} setIsLoginModalOpen={setIsLoginModalOpen} />
+      <section className="container pb-20">
+        <Card className="overflow-hidden border-gray-800 bg-gray-900/50">
+          <CardContent className="p-8 sm:p-12">
+            <div className="mx-auto max-w-[600px] text-center">
+              <h2 className="text-4xl font-bold tracking-tight">Klar for å samarbeide med oss?</h2>
+              <p className="mt-4 text-xl text-gray-400">
+                Fortell oss litt om prosjektet ditt, så tar vi kontakt innen 24 timer
+              </p>
+              <div className="mt-8">
+                <Button 
+                  size="lg" 
+                  className="h-14 px-8 text-lg group"
+                  asChild
+                >
+                  <Link href="/contact">
+                    Kontakt oss
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
       {/* Login Modal */}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
@@ -176,35 +200,3 @@ export default function Home() {
     </div>
   )
 }
-
-import DynamicForm from "@/components/ui/form"
-
-interface ContactSectionProps {
-  isLoginModalOpen: boolean;
-  setIsLoginModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-function ContactSection({ isLoginModalOpen, setIsLoginModalOpen }: ContactSectionProps) {
-  return (
-    <section className="container pb-20">
-      <Card className="overflow-hidden border-gray-800 bg-gray-900/50">
-        <CardContent className="p-8 sm:p-12">
-          <div className="mx-auto max-w-[600px] text-center">
-            <h2 className="text-4xl font-bold tracking-tight">Klar for å samarbeide med oss?</h2>
-            <p className="mt-4 text-xl text-gray-400">
-              Fortell oss litt om prosjektet ditt, så tar vi kontakt innen 24 timer
-            </p>
-            
-            <DynamicForm />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Login Modal */}
-      {isLoginModalOpen && (
-        <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
-      )}
-    </section>
-  )
-}
-
