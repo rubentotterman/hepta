@@ -10,6 +10,7 @@ import Image from "next/image"
 import { LoginModal } from "@/components/login-modal"
 import { ContactFormModal } from "@/components/contact-form-modal"
 import { useAuth } from "@/contexts/auth-context"
+import Link from "next/link"
 
 export default function Home() {
   const { isLoggedIn } = useAuth()
@@ -154,9 +155,11 @@ export default function Home() {
                 ))}
               </ul>
               <div>
-                <Button size="lg" className="group text-lg">
-                  Mer om oss
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+                <Button size="lg" className="group" asChild>
+                  <Link href="/om-oss">
+                    Mer om oss
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+                  </Link>
                 </Button>
               </div>
             </div>
