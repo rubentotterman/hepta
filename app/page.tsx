@@ -8,15 +8,20 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, ArrowUpRight, CheckCircle } from "lucide-react"
 import Image from "next/image"
 import { LoginModal } from "@/components/login-modal"
-import Link from "next/link"
+import { ContactFormModal } from "@/components/contact-form-modal"
 import { useAuth } from "@/contexts/auth-context"
 
 export default function Home() {
   const { isLoggedIn } = useAuth()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false)
 
   const handleLoginClick = () => {
     setIsLoginModalOpen(true)
+  }
+
+  const handleStartClick = () => {
+    setIsContactModalOpen(true)
   }
 
   const services = [
@@ -59,12 +64,10 @@ export default function Home() {
               <Button
                 className="animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]"
                 size="lg"
-                asChild
+                onClick={handleStartClick}
               >
-                <Link href="/tjenester">
-                  Se hva vi gjør
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
+                Start nå
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               {!isLoggedIn && (
                 <Button
@@ -162,31 +165,36 @@ export default function Home() {
       </section>
 
       <section className="container pb-20">
-  <Card className="overflow-hidden border-gray-800 bg-gray-900/50">
-    <CardContent className="p-8 sm:p-12">
-      <div className="mx-auto max-w-[600px] text-center">
-        <h2 className="text-4xl font-bold tracking-tight">Klar for å samarbeide med oss?</h2>
-        <p className="mt-4 text-xl text-gray-400">
-          Fortell oss litt om prosjektet ditt, så tar vi kontakt innen 24 timer
-        </p>
-        <div className="mt-8">
-          <Button 
-            size="lg" 
-            className="text-lg group"
-            asChild
-          >
-            <Link href="/contact">
-              Kontakt oss
-              <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
-            </Link>
-          </Button>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-</section>
+        <Card className="overflow-hidden border-gray-800 bg-gray-900/50">
+          <CardContent className="p-8 sm:p-12">
+            <div className="mx-auto max-w-[600px] text-center">
+              <h2 className="text-4xl font-bold tracking-tight">Klar for å samarbeide med oss?</h2>
+              <p className="mt-4 text-xl text-gray-400">
+                Fortell oss litt om prosjektet ditt, så tar vi kontakt innen 24 timer
+              </p>
+              <form className="mt-8 space-y-4">
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  className="h-12 border-gray-800 bg-gray-950/50 px-4 text-base transition-colors hover:border-gray-700 focus:border-orange-500"
+                />
+                <Textarea
+                  placeholder="Melding"
+                  className="min-h-[150px] border-gray-800 bg-gray-950/50 px-4 py-3 text-base transition-colors hover:border-gray-700 focus:border-orange-500"
+                />
+                <Button size="lg" className="mt-6 w-full text-lg sm:w-auto" onClick={handleStartClick}>
+                  Start nå
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </form>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+      <ContactFormModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
     </div>
   )
 }
+
