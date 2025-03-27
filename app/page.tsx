@@ -8,21 +8,16 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, ArrowUpRight, CheckCircle } from "lucide-react"
 import Image from "next/image"
 import { LoginModal } from "@/components/login-modal"
+import Link from "next/link"
 import { ContactFormModal } from "@/components/contact-form-modal"
 import { useAuth } from "@/contexts/auth-context"
-import Link from "next/link"
 
 export default function Home() {
   const { isLoggedIn } = useAuth()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false)
 
   const handleLoginClick = () => {
     setIsLoginModalOpen(true)
-  }
-
-  const handleStartClick = () => {
-    setIsContactModalOpen(true)
   }
 
   const services = [
@@ -48,6 +43,10 @@ export default function Home() {
 
   const features = ["Skreddersydde løsninger", "Erfarne fagfolk", "Innovativ teknologi", "Resultatorientert tilnærming"]
 
+  function handleStartClick(event: MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    throw new Error("Function not implemented.")
+  }
+
   return (
     <div className="space-y-32">
       <section className="relative overflow-hidden pt-20">
@@ -65,10 +64,12 @@ export default function Home() {
               <Button
                 className="animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]"
                 size="lg"
-                onClick={handleStartClick}
+                asChild
               >
-                Start nå
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <Link href="/tjenester">
+                  Se hva vi gjør
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
               </Button>
               {!isLoggedIn && (
                 <Button
@@ -155,11 +156,9 @@ export default function Home() {
                 ))}
               </ul>
               <div>
-                <Button size="lg" className="group" asChild>
-                  <Link href="/om-oss">
-                    Mer om oss
-                    <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
-                  </Link>
+                <Button size="lg" className="group text-lg">
+                  Mer om oss
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
                 </Button>
               </div>
             </div>
@@ -196,8 +195,6 @@ export default function Home() {
       </section>
 
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
-      <ContactFormModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
     </div>
   )
 }
-
