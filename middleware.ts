@@ -1,6 +1,7 @@
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { isPublicRoute } from "@/lib/navigation"
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
@@ -11,6 +12,7 @@ export async function middleware(req: NextRequest) {
 
   // List of protected routes that require authentication
   const protectedRoutes = ["/dashboard", "/faktura", "/innstillinger"]
+  // Note: /om-oss is intentionally not protected as it's accessible in both logged-in and logged-out states
 
   // List of admin routes that require admin role
   const adminRoutes = ["/admin", "/admin/users"]
@@ -18,6 +20,7 @@ export async function middleware(req: NextRequest) {
   // Check if the current route is protected
   const isProtectedRoute = protectedRoutes.some((route) => req.nextUrl.pathname.startsWith(route))
   const isAdminRoute = adminRoutes.some((route) => req.nextUrl.pathname.startsWith(route))
+  const isPublic = isPublicRoute(req.nextUrl.pathname)
 
   // Check for test session in cookies
   const hasTestSession = req.cookies.get("hasTestSession")?.value === "true"
@@ -68,7 +71,7 @@ export async function middleware(req: NextRequest) {
     }
   }
   // For regular protected routes, just check authentication
-  else if (isProtectedRoute && !session && !hasTestSession && !hasSessionCookie) {
+  else if (isProtectedRoute && !isPublic && !session && !hasTestSession && !hasSessionCookie) {
     console.log("Redirecting to home - no valid session for protected route")
     // Redirect to login if accessing protected route without auth
     const redirectUrl = req.nextUrl.clone()
