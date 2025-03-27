@@ -28,6 +28,7 @@
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
+    "react-router-dom": "^7.4.0",
     "stripe": "^14.10.0",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7"
@@ -44,4 +45,3 @@
     "typescript": "^5"
   }
 }
-
