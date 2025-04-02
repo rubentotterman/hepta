@@ -8,7 +8,10 @@ import Image from "next/image"
 import { LoginModal } from "@/components/login-modal"
 import { ContactFormModal } from "@/components/contact-form-modal"
 import { useAuth } from "@/contexts/auth-context"
+<<<<<<< HEAD
 import { useRouter } from "next/navigation"
+=======
+>>>>>>> 69aeb3a16dc37c8a20cf316982c7b57deac30985
 import Link from "next/link"
 
 export default function Home() {
