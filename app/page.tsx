@@ -2,15 +2,14 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, ArrowUpRight, CheckCircle } from "lucide-react"
 import Image from "next/image"
 import { LoginModal } from "@/components/login-modal"
 import { ContactFormModal } from "@/components/contact-form-modal"
 import { useAuth } from "@/contexts/auth-context"
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export default function Home() {
   const { isLoggedIn } = useAuth()
@@ -25,9 +24,9 @@ export default function Home() {
   const handleStartClick = () => {
     setIsContactModalOpen(true)
   }
-  
+
   const handleServiceNavigation = () => {
-    router.push('/tjenester')
+    router.push("/tjenester")
   }
 
   const services = [
@@ -150,9 +149,11 @@ export default function Home() {
                 ))}
               </ul>
               <div>
-                <Button size="lg" className="group text-lg">
-                  Mer om oss
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+                <Button size="lg" className="group" asChild>
+                  <Link href="/om-oss">
+                    Mer om oss
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -160,21 +161,14 @@ export default function Home() {
         </div>
       </section>
 
-     
       <section className="container pb-20">
         <Card className="overflow-hidden border-gray-800 bg-gray-900/50">
           <CardContent className="p-8 sm:p-12">
             <div className="mx-auto max-w-[600px] text-center">
               <h2 className="text-4xl font-bold tracking-tight">Klar for å samarbeide med oss?</h2>
-              <p className="mt-4 text-xl text-gray-400">
-                Ta kontakt for en uforpliktende samtale om ditt prosjekt
-              </p>
+              <p className="mt-4 text-xl text-gray-400">Ta kontakt for en uforpliktende samtale om ditt prosjekt</p>
               <div className="mt-8">
-                <Button 
-                  size="lg" 
-                  className="h-14 px-8 text-lg"
-                  onClick={() => router.push('/contact')}
-                >
+                <Button size="lg" className="h-14 px-8 text-lg" onClick={() => router.push("/contact")}>
                   Kontakt oss
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -184,10 +178,9 @@ export default function Home() {
         </Card>
       </section>
 
-
-
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
       <ContactFormModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
     </div>
   )
 }
+
