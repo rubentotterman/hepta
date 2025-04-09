@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, ArrowUpRight, CheckCircle } from "lucide-react"
 import Image from "next/image"
@@ -9,14 +11,11 @@ import { LoginModal } from "@/components/login-modal"
 import { ContactFormModal } from "@/components/contact-form-modal"
 import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
-import { useRouter } from 'next/navigation'
-
 
 export default function Home() {
   const { isLoggedIn } = useAuth()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isContactModalOpen, setIsContactModalOpen] = useState(false)
-  const router = useRouter()
 
   const handleLoginClick = () => {
     setIsLoginModalOpen(true)
@@ -24,10 +23,6 @@ export default function Home() {
 
   const handleStartClick = () => {
     setIsContactModalOpen(true)
-  }
-
-  const handleServiceNavigation = () => {
-    router.push("/tjenester")
   }
 
   const services = [
@@ -70,11 +65,21 @@ export default function Home() {
               <Button
                 className="animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]"
                 size="lg"
-                onClick={handleServiceNavigation}
+                onClick={handleStartClick}
               >
-                se tjenester
+                Start nå
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
+              {!isLoggedIn && (
+                <Button
+                  variant="outline"
+                  className="animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]"
+                  size="lg"
+                  onClick={handleLoginClick}
+                >
+                  Logg inn
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -167,13 +172,24 @@ export default function Home() {
           <CardContent className="p-8 sm:p-12">
             <div className="mx-auto max-w-[600px] text-center">
               <h2 className="text-4xl font-bold tracking-tight">Klar for å samarbeide med oss?</h2>
-              <p className="mt-4 text-xl text-gray-400">Ta kontakt for en uforpliktende samtale om ditt prosjekt</p>
-              <div className="mt-8">
-                <Button size="lg" className="h-14 px-8 text-lg" onClick={() => router.push("/contact")}>
-                  Kontakt oss
+              <p className="mt-4 text-xl text-gray-400">
+                Fortell oss litt om prosjektet ditt, så tar vi kontakt innen 24 timer
+              </p>
+              <form className="mt-8 space-y-4">
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  className="h-12 border-gray-800 bg-gray-950/50 px-4 text-base transition-colors hover:border-gray-700 focus:border-orange-500"
+                />
+                <Textarea
+                  placeholder="Melding"
+                  className="min-h-[150px] border-gray-800 bg-gray-950/50 px-4 py-3 text-base transition-colors hover:border-gray-700 focus:border-orange-500"
+                />
+                <Button size="lg" className="mt-6 w-full text-lg sm:w-auto" onClick={handleStartClick}>
+                  Start nå
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-              </div>
+              </form>
             </div>
           </CardContent>
         </Card>

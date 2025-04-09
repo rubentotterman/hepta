@@ -68,15 +68,6 @@ export function MainNav() {
             >
               Innstillinger
             </Link>
-            {/* Only show Admin link for admin users */}
-            {(userRole === "admin" || process.env.NODE_ENV === "development") && (
-              <Link
-                href="/admin/users"
-                className={`font-medium ${pathname.startsWith("/admin") ? "text-orange-500" : "text-white"}`}
-              >
-                Admin
-              </Link>
-            )}
           </>
         ) : (
           <>

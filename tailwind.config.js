@@ -70,8 +70,52 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            color: "hsl(var(--foreground))",
+            a: {
+              color: "hsl(var(--primary))",
+              "&:hover": {
+                color: "hsl(var(--primary))",
+              },
+            },
+            h1: {
+              color: "hsl(var(--foreground))",
+            },
+            h2: {
+              color: "hsl(var(--foreground))",
+            },
+            h3: {
+              color: "hsl(var(--foreground))",
+            },
+            h4: {
+              color: "hsl(var(--foreground))",
+            },
+            h5: {
+              color: "hsl(var(--foreground))",
+            },
+            h6: {
+              color: "hsl(var(--foreground))",
+            },
+            strong: {
+              color: "hsl(var(--foreground))",
+            },
+            code: {
+              color: "hsl(var(--foreground))",
+            },
+            figcaption: {
+              color: "hsl(var(--muted-foreground))",
+            },
+            blockquote: {
+              color: "hsl(var(--foreground))",
+              borderLeftColor: "hsl(var(--border))",
+            },
+          },
+        },
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 }
 
