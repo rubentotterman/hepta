@@ -1,11 +1,11 @@
 "use client"
 
 import Link from "next/link"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight } from "lucide-react"
 import { ContactFormModal } from "@/components/contact-form-modal"
-import { useState } from "react"
+import ServiceCards from "@/components/serviceCards"
 
 const services = [
   {
@@ -89,32 +89,12 @@ export default function Tjenester() {
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-500/20 via-transparent to-transparent" />
       </section>
 
-      {/* Services Section */}
+      {/* Services Section - ERSTATTET MED NYE KORT */}
       <section className="space-y-8">
         <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">Dette er vi gode på</h2>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service, index) => (
-            <Card
-              key={index}
-              className="group overflow-hidden border-gray-800 bg-gray-900/50 transition-all duration-300 hover:border-gray-700 hover:bg-gray-900 hover:shadow-lg hover:shadow-orange-500/10"
-            >
-              <CardContent className="p-6">
-                <h3 className="text-2xl font-semibold tracking-tight">{service.title}</h3>
-                <p className="mt-2 text-gray-400">{service.content}</p>
-                <Button
-                  asChild
-                  variant="link"
-                  className="mt-4 h-auto p-0 text-orange-500 transition-colors hover:text-orange-400"
-                >
-                  <Link href={`/tjenester/${service.slug}`} className="group inline-flex items-center">
-                    Les mer
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        
+        {/* Importert ServiceCards-komponent */}
+        <ServiceCards services={services} />
       </section>
 
       {/* CTA Section */}
@@ -135,4 +115,3 @@ export default function Tjenester() {
     </div>
   )
 }
-
