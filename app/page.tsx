@@ -39,7 +39,7 @@ export default function Home() {
     },
     {
       title: "SEO",
-      content: "Optimalisering for søkemotorer som sikrer at din bedrift blir funnet av potensielle kunder på nett. Vi fokuserer på resultater og organisk trafikk.",
+      content: "Optimalisering test for søkemotorer som sikrer at din bedrift blir funnet av potensielle kunder på nett. Vi fokuserer på resultater og organisk trafikk.",
       slug: "seo",
     },
     {
@@ -63,7 +63,7 @@ export default function Home() {
         <div className="container relative">
           <div className="mx-auto max-w-[800px] text-center">
             <h1 className="animate-fade-in bg-gradient-to-br from-white to-gray-400 bg-clip-text text-5xl font-extrabold leading-tight tracking-tight text-transparent sm:text-6xl md:text-7xl">
-              Vi er Hepta, utviklere, markedsførere og problemløsere
+              Vi er dgxggddxgfpkås Hepta, utviklere, markedsførere og problemløsere
             </h1>
             <p className="mt-8 animate-fade-in text-lg leading-relaxed text-gray-400 [animation-delay:200ms]">
               Vårt team av erfarne utviklere, designere og produktledere hjelper deg å realisere ideene dine. Enten du
