@@ -3,14 +3,14 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowRight, ArrowUpRight, CheckCircle } from "lucide-react"
+import { ArrowRight, CheckCircle } from "lucide-react"
 import Image from "next/image"
 import { LoginModal } from "@/components/login-modal"
 import { ContactFormModal } from "@/components/contact-form-modal"
 import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
-
+import ServiceCards from "@/components/serviceCards"
 
 export default function Home() {
   const { isLoggedIn } = useAuth()
@@ -30,24 +30,27 @@ export default function Home() {
     router.push("/tjenester")
   }
 
+  // Services data for ServiceCards component
   const services = [
     {
-      name: "Marketing",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Strategisk markedsføring for vekst",
+      title: "Marketing",
+      content: "Strategisk markedsføring som driver vekst og øker synligheten for din virksomhet. Vi hjelper deg med å nå dine målgrupper effektivt.",
+      slug: "marketing",
     },
     {
-      name: "SEO",
-      image:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DyrXKUz2yM46weXW-generated_image.jpg-kKQYqkWAsZ3VesarAD0MN6iFfmxZ6V.jpeg",
-      description: "Optimalisering for søkemotorer",
+      title: "SEO",
+      content: "Optimalisering for søkemotorer som sikrer at din bedrift blir funnet av potensielle kunder på nett. Vi fokuserer på resultater og organisk trafikk.",
+      slug: "seo",
     },
-    { name: "AI Workshop", image: "/placeholder.svg?height=300&width=400", description: "Innovativ AI-opplæring" },
     {
-      name: "Development",
-      image:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NScCSeoMhG3otlsf-generated_image.jpg-AO2NVqUPiotxAfwLxsgSIZ9jhnXhek.jpeg",
-      description: "Skreddersydd programvareutvikling",
+      title: "AI Workshop",
+      content: "Lær hvordan kunstig intelligens kan transformere din virksomhet gjennom våre interaktive og praktiske workshop-opplegg.",
+      slug: "ai-workshop",
+    },
+    {
+      title: "Development",
+      content: "Skreddersydd programvareutvikling for web, mobil og desktop. Våre utviklere bygger innovative og skalerbare løsninger for din virksomhet.",
+      slug: "development",
     },
   ]
 
@@ -88,36 +91,10 @@ export default function Home() {
             Vi tilbyr en rekke tjenester for å hjelpe din bedrift å vokse og lykkes
           </p>
         </div>
-        <div className="mt-16 grid gap-8 sm:grid-cols-2">
-          {services.map((service, i) => (
-            <Card
-              key={i}
-              className="group relative overflow-hidden border-gray-800 bg-gray-900/50 transition-all duration-300 hover:border-gray-700 hover:bg-gray-900 hover:shadow-lg hover:shadow-orange-500/10"
-            >
-              <CardContent className="p-6">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
-                  <Image
-                    src={service.image || "/placeholder.svg"}
-                    alt={`Illustrasjon av ${service.name}`}
-                    fill
-                    className="transition-transform duration-300 group-hover:scale-105"
-                    style={{ objectFit: "cover" }}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="mt-6">
-                  <h3 className="text-2xl font-semibold tracking-tight">{service.name}</h3>
-                  <p className="mt-2 text-gray-400">{service.description}</p>
-                  <Button
-                    variant="link"
-                    className="mt-4 h-auto p-0 text-orange-500 transition-colors hover:text-orange-400"
-                  >
-                    Les mer <ArrowUpRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        
+        {/* Her importeres ServiceCards-komponenten */}
+        <div className="mt-16">
+          <ServiceCards services={services} />
         </div>
       </section>
 
@@ -184,4 +161,3 @@ export default function Home() {
     </div>
   )
 }
-
