@@ -8,14 +8,73 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useAuth } from "@/contexts/auth-context"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
 export default function Innstillinger() {
-  const { user, sessionToken } = useAuth()
+  const { user } = useAuth()
+  const supabase = createClientComponentClient()
+
   const [notifications, setNotifications] = useState({
     email: true,
     marketing: false,
     updates: true,
   })
+
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+
+  const handleChangePassword = async () => {
+    setError(null)
+    setMessage(null)
+
+    if (newPassword !== confirmPassword) {
+      setError("Passordene er ikke like.")
+      return
+    }
+
+    if (newPassword.length < 6) {
+      setError("Passordet må være minst 6 tegn.")
+      return
+    }
+
+    if (!currentPassword) {
+      setError("Du må skrive inn ditt nåværende passord.")
+      return
+    }
+
+    setLoading(true)
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user?.email || "",
+      password: currentPassword,
+    })
+
+    if (signInError) {
+      setError("Feil nåværende passord.")
+      setLoading(false)
+      return
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    })
+
+    setLoading(false)
+
+    if (error) {
+      console.error("Feil ved oppdatering av passord:", error.message)
+      setError("Kunne ikke oppdatere passordet.")
+    } else {
+      setMessage("Passordet er oppdatert!")
+      setNewPassword("")
+      setConfirmPassword("")
+      setCurrentPassword("")
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -101,19 +160,42 @@ export default function Innstillinger() {
               <CardDescription>Administrer dine sikkerhetsinnstillinger</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+              {message && <p className="text-green-500 text-sm">{message}</p>}
+
               <div className="space-y-2">
                 <Label htmlFor="current-password">Nåværende passord</Label>
-                <Input id="current-password" type="password" className="bg-gray-950/50" />
+                <Input
+                  id="current-password"
+                  type="password"
+                  className="bg-gray-950/50"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="new-password">Nytt passord</Label>
-                <Input id="new-password" type="password" className="bg-gray-950/50" />
+                <Input
+                  id="new-password"
+                  type="password"
+                  className="bg-gray-950/50"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirm-password">Bekreft nytt passord</Label>
-                <Input id="confirm-password" type="password" className="bg-gray-950/50" />
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  className="bg-gray-950/50"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
               </div>
-              <Button className="mt-4 bg-orange-500 hover:bg-orange-600">Oppdater passord</Button>
+              <Button onClick={handleChangePassword} disabled={loading} className="mt-4 bg-orange-500 hover:bg-orange-600">
+                {loading ? "Oppdaterer..." : "Oppdater passord"}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -121,4 +203,3 @@ export default function Innstillinger() {
     </div>
   )
 }
-
