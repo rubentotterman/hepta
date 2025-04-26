@@ -348,7 +348,7 @@ async function sendEmail(transporter, formData, fromEmail) {
         to: email, // Sending to the visitor's email
         subject: 'Takk for din henvendelse til Hepta',
         text: `
-          Hei ${firstName || name},
+          Hei ${firstName || name}
           
           Takk for din henvendelse til Hepta. Vi har mottatt meldingen din og vil ta kontakt så snart som mulig.
           
@@ -357,11 +357,14 @@ async function sendEmail(transporter, formData, fromEmail) {
         `,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>Hei ${firstName || name}!</h2>
+            <p>Hei ${firstName || name}!</p>
             <p>Takk for din henvendelse til Hepta. Vi har mottatt meldingen din og vil ta kontakt så snart som mulig.</p>
             <p>Med vennlig hilsen,<br>Hepta AS</p>
           </div>
-        `
+        `,headers: {
+          'X-Priority': '3',
+          'Importance': 'Normal'
+        }
       });
       
       console.log('API: Auto-reply sent');
