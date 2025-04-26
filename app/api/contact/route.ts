@@ -29,10 +29,19 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // Get form data
-    const { name, email, message } = body;
+    // Get all form data
+    const { 
+      name, 
+      email, 
+      message, 
+      firstName, 
+      lastName, 
+      company, 
+      website, 
+      phone 
+    } = body;
     
-    // Validate required fields
+    // Validate required fields - keep compatibility with the original required fields
     if (!name || !email || !message) {
       console.log('API: Missing required fields');
       return NextResponse.json({ 
@@ -41,122 +50,271 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
-    console.log('API: Creating nodemailer transporter for Webhuset');
+    // Get email configuration from environment variables
+    const emailUser = process.env.EMAIL_USER || 'hey@hepta.biz';
+    const emailPassword = process.env.EMAIL_PASSWORD;
+    const emailHost = process.env.EMAIL_HOST || 'smtp.webhuset.no';
+    const emailPort = parseInt(process.env.EMAIL_PORT || '587', 10);
+    const emailSecure = process.env.EMAIL_SECURE === 'true' || emailPort === 465;
     
-    // Create nodemailer transporter for Webhuset's SMTP server
-    const transporter = nodemailer.createTransport({
-      host: 'smtp-relay2.webhuset.no',
-      port: 25, // Try port 587 first
-      secure: false, // TLS for port 587
-      auth: {
-        user: 'hey@hepta.biz',
-        pass: '!NyttPassord123',
-      },
+    // Log configuration (without the password)
+    console.log('API: Email configuration:', { 
+      host: emailHost, 
+      port: emailPort, 
+      secure: emailSecure,
+      user: emailUser
     });
     
-    console.log('API: Verifying SMTP connection');
+    // Set up the SMTP transport
+    console.log('API: Creating nodemailer transporter');
     
-    // Verify connection before sending
-    try {
-      await transporter.verify();
-      console.log('API: SMTP connection verified');
-    } catch (verifyError) {
-      console.error('API: SMTP verification failed for port 587:', verifyError);
-      
-      // Try alternate port 465 with SSL if 587 fails
-      console.log('API: Trying alternate port 465 with SSL');
+    // For Webhuset, we need proper authentication
+    const transportOptions = {
+      host: emailHost,
+      port: emailPort,
+      secure: emailSecure,
+      auth: {
+        user: emailUser,
+        pass: emailPassword
+      }
+    };
+    
+    // Create transporter
+    const transporter = nodemailer.createTransport(transportOptions);
+    
+    // Use Ethereal in development mode if no password is provided
+    if (process.env.NODE_ENV === 'development' && !emailPassword) {
+      console.log('API: In development mode without password, using Ethereal test account');
       try {
-        const altTransporter = nodemailer.createTransport({
-          host: 'smtp.webhuset.no',
-          port: 465, // Try port 465 as fallback
-          secure: true, // SSL for port 465
+        const testAccount = await nodemailer.createTestAccount();
+        
+        const testTransporter = nodemailer.createTransport({
+          host: 'smtp.ethereal.email',
+          port: 587,
+          secure: false,
           auth: {
-            user: 'hey@hepta.biz',
-            pass: '!NyttPassord123',
+            user: testAccount.user,
+            pass: testAccount.pass,
           },
         });
         
-        await altTransporter.verify();
-        console.log('API: Alternate SMTP settings verified');
+        // Format message with all available fields
+        const formattedMessage = formatMessageWithAllFields({
+          message,
+          firstName,
+          lastName,
+          company,
+          website,
+          phone
+        });
         
-        // Use alternate settings if they work
-        return await sendEmail(altTransporter, { name, email, message });
-      } catch (altError) {
-        console.error('API: Alternate SMTP settings also failed:', altError);
+        // Send with test account
+        const info = await testTransporter.sendMail({
+          from: `Hepta <${emailUser}>`,
+          to: emailUser,
+          subject: `Kontaktskjema: ${name}`,
+          text: `Navn: ${name}\nE-post: ${email}\nTelefon: ${phone || 'Ikke oppgitt'}\n${formattedMessage}`,
+          html: `<div>
+                  <h2>Ny henvendelse</h2>
+                  <p><b>Navn:</b> ${name}</p>
+                  <p><b>E-post:</b> ${email}</p>
+                  ${phone ? `<p><b>Telefon:</b> ${phone}</p>` : ''}
+                  ${company ? `<p><b>Selskap:</b> ${company}</p>` : ''}
+                  ${website ? `<p><b>Nettside:</b> ${website}</p>` : ''}
+                  <p><b>Melding:</b></p>
+                  <div>${message.replace(/\n/g, '<br>')}</div>
+                 </div>`,
+        });
         
-        // If both fail in development, try Ethereal as last resort
-        if (process.env.NODE_ENV === 'development') {
-          console.log('API: In development mode, trying Ethereal test account');
-          try {
-            const testAccount = await nodemailer.createTestAccount();
-            console.log('API: Created test account:', testAccount.user);
-            
-            const testTransporter = nodemailer.createTransport({
-              host: 'smtp.ethereal.email',
-              port: 587,
-              secure: false,
-              auth: {
-                user: testAccount.user,
-                pass: testAccount.pass,
-              },
-            });
-            
-            // Send with test account
-            const info = await testTransporter.sendMail({
-              from: '"Hepta Contact" <hey@hepta.biz>',
-              to: 'hey@hepta.biz',
-              subject: `Kontaktskjema: ${name}`,
-              text: `Navn: ${name}\nE-post: ${email}\nMelding: ${message}`,
-              html: `<div><h2>Ny henvendelse</h2><p><b>Navn:</b> ${name}</p><p><b>E-post:</b> ${email}</p><p><b>Melding:</b></p><div>${message.replace(/\n/g, '<br>')}</div></div>`,
-            });
-            
-            console.log('API: Test email sent:', info.messageId);
-            console.log('API: Preview URL:', nodemailer.getTestMessageUrl(info));
-            
-            return NextResponse.json({
-              success: true,
-              testMode: true,
-              previewUrl: nodemailer.getTestMessageUrl(info),
-              message: 'E-post sendt i testmodus. Sjekk serveren for forhåndsvisningslenke.'
-            });
-          } catch (testError) {
-            console.error('API: Test account also failed:', testError);
-          }
-        }
+        console.log('API: Test email sent:', info.messageId);
+        console.log('API: Preview URL:', nodemailer.getTestMessageUrl(info));
         
-        return NextResponse.json({ 
-          error: 'Kunne ikke koble til e-posttjenesten. Vennligst kontakt oss direkte.',
-          details: process.env.NODE_ENV === 'development' ? String(verifyError) : undefined
+        return NextResponse.json({
+          success: true,
+          testMode: true,
+          previewUrl: nodemailer.getTestMessageUrl(info),
+          message: 'E-post sendt i testmodus. Sjekk serveren for forhåndsvisningslenke.'
+        });
+      } catch (testError) {
+        console.error('API: Test account failed:', testError);
+        return NextResponse.json({
+          error: 'Kunne ikke opprette testkonto for e-post',
+          details: String(testError),
+          success: false
         }, { status: 500 });
       }
     }
     
-    // If original settings work, send with them
-    return await sendEmail(transporter, { name, email, message });
+    // Try to send the email via configured SMTP
+    try {
+      console.log('API: Verifying SMTP connection');
+      await transporter.verify();
+      console.log('API: SMTP connection verified');
+      
+      // Send the actual email
+      return await sendEmail(
+        transporter, 
+        { 
+          name, 
+          email, 
+          message, 
+          firstName, 
+          lastName, 
+          company, 
+          website, 
+          phone 
+        }, 
+        emailUser
+      );
+    } catch (verifyError) {
+      console.error('API: SMTP verification failed:', verifyError);
+      
+      // If we're in development and the real SMTP fails, try Ethereal as fallback
+      if (process.env.NODE_ENV === 'development') {
+        console.log('API: SMTP failed in development, falling back to Ethereal');
+        try {
+          const testAccount = await nodemailer.createTestAccount();
+          
+          const testTransporter = nodemailer.createTransport({
+            host: 'smtp.ethereal.email',
+            port: 587,
+            secure: false,
+            auth: {
+              user: testAccount.user,
+              pass: testAccount.pass,
+            },
+          });
+          
+          // Format message with all available fields
+          const formattedMessage = formatMessageWithAllFields({
+            message,
+            firstName,
+            lastName,
+            company,
+            website,
+            phone
+          });
+          
+          // Send with test account
+          const info = await testTransporter.sendMail({
+            from: `Hepta <${emailUser}>`,
+            to: emailUser,
+            subject: `Kontaktskjema: ${name}`,
+            text: `Navn: ${name}\nE-post: ${email}\nTelefon: ${phone || 'Ikke oppgitt'}\n${formattedMessage}`,
+            html: `<div>
+                    <h2>Ny henvendelse</h2>
+                    <p><b>Navn:</b> ${name}</p>
+                    <p><b>E-post:</b> ${email}</p>
+                    ${phone ? `<p><b>Telefon:</b> ${phone}</p>` : ''}
+                    ${company ? `<p><b>Selskap:</b> ${company}</p>` : ''}
+                    ${website ? `<p><b>Nettside:</b> ${website}</p>` : ''}
+                    <p><b>Melding:</b></p>
+                    <div>${message.replace(/\n/g, '<br>')}</div>
+                   </div>`,
+          });
+          
+          console.log('API: Test email sent:', info.messageId);
+          console.log('API: Preview URL:', nodemailer.getTestMessageUrl(info));
+          
+          return NextResponse.json({
+            success: true,
+            testMode: true,
+            previewUrl: nodemailer.getTestMessageUrl(info),
+            message: 'E-post sendt i testmodus. Sjekk serveren for forhåndsvisningslenke.'
+          });
+        } catch (testError) {
+          console.error('API: Even fallback test account failed:', testError);
+        }
+      }
+      
+      return NextResponse.json({ 
+        error: 'Kunne ikke koble til e-posttjenesten. Vennligst kontakt oss direkte.',
+        details: String(verifyError),
+        success: false
+      }, { status: 500 });
+    }
     
   } catch (error) {
     console.error('API: General error in contact route:', error);
     return NextResponse.json({ 
       error: 'Det oppstod en feil ved behandling av kontaktskjema',
-      details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      details: String(error),
+      success: false
     }, { status: 500 });
   }
 }
 
+// Helper function to format the message text with all fields
+function formatMessageWithAllFields({ message, firstName, lastName, company, website, phone }) {
+  let formattedMessage = `Melding: ${message}`;
+  
+  // Add extra information if available
+  if (firstName && lastName) {
+    formattedMessage += `\n\nFornavn: ${firstName}\nEtternavn: ${lastName}`;
+  }
+  
+  if (company) {
+    formattedMessage += `\nSelskap: ${company}`;
+  }
+  
+  if (website) {
+    formattedMessage += `\nNettside: ${website}`;
+  }
+  
+  if (phone) {
+    formattedMessage += `\nTelefon: ${phone}`;
+  }
+  
+  return formattedMessage;
+}
+
 // Helper function to send email
-async function sendEmail(transporter, { name, email, message }) {
+async function sendEmail(transporter, formData, fromEmail) {
+  const { 
+    name, 
+    email, 
+    message, 
+    firstName, 
+    lastName, 
+    company, 
+    website, 
+    phone 
+  } = formData;
+  
   try {
     console.log('API: Preparing email');
     
-    // Prepare email content
-    const mailOptions = {
-      from: 'Hepta <hey@hepta.biz>', // Make sure this email exists in your domain
-      to: 'hey@hepta.biz', // Where you want to receive the emails
+    // Log the full mail configuration
+    console.log('API: Mail options:', {
+      from: `Hepta <${fromEmail}>`,
+      to: fromEmail,
       replyTo: email,
+      subject: `Kontaktskjema: ${name}`
+    });
+    
+    // Format message with all details
+    const detailedMessage = formatMessageWithAllFields({
+      message,
+      firstName,
+      lastName,
+      company,
+      website,
+      phone
+    });
+    
+    // Use the from email from environment variables
+    const mailOptions = {
+      from: `Hepta <${fromEmail}>`,
+      to: fromEmail, // Where you want to receive the contact forms
+      replyTo: email, // The visitor's email for when you reply
       subject: `Kontaktskjema: ${name}`,
       text: `
         Navn: ${name}
         E-post: ${email}
+        ${phone ? `Telefon: ${phone}` : ''}
+        ${company ? `Selskap: ${company}` : ''}
+        ${website ? `Nettside: ${website}` : ''}
+        
         Melding: ${message}
       `,
       html: `
@@ -164,6 +322,9 @@ async function sendEmail(transporter, { name, email, message }) {
           <h2>Ny henvendelse fra kontaktskjema</h2>
           <p><strong>Navn:</strong> ${name}</p>
           <p><strong>E-post:</strong> ${email}</p>
+          ${phone ? `<p><strong>Telefon:</strong> ${phone}</p>` : ''}
+          ${company ? `<p><strong>Selskap:</strong> ${company}</p>` : ''}
+          ${website ? `<p><strong>Nettside:</strong> ${website}</p>` : ''}
           <p><strong>Melding:</strong></p>
           <div style="background-color: #f5f5f5; padding: 15px; margin-top: 10px;">
             ${message.replace(/\n/g, '<br>')}
@@ -183,11 +344,11 @@ async function sendEmail(transporter, { name, email, message }) {
       console.log('API: Sending auto-reply to', email);
       
       await transporter.sendMail({
-        from: 'Hepta <hey@hepta.biz>',
-        to: email,
+        from: `Hepta <${fromEmail}>`,
+        to: email, // Sending to the visitor's email
         subject: 'Takk for din henvendelse til Hepta',
         text: `
-          Hei ${name},
+          Hei ${firstName || name},
           
           Takk for din henvendelse til Hepta. Vi har mottatt meldingen din og vil ta kontakt så snart som mulig.
           
@@ -196,7 +357,7 @@ async function sendEmail(transporter, { name, email, message }) {
         `,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>Hei ${name}!</h2>
+            <h2>Hei ${firstName || name}!</h2>
             <p>Takk for din henvendelse til Hepta. Vi har mottatt meldingen din og vil ta kontakt så snart som mulig.</p>
             <p>Med vennlig hilsen,<br>Hepta AS</p>
           </div>
@@ -218,7 +379,8 @@ async function sendEmail(transporter, { name, email, message }) {
     console.error('API: Error sending email:', emailError);
     return NextResponse.json({ 
       error: 'Kunne ikke sende e-post',
-      details: process.env.NODE_ENV === 'development' ? String(emailError) : undefined
+      details: String(emailError),
+      success: false
     }, { status: 500 });
   }
 }
