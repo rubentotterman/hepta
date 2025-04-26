@@ -33,24 +33,24 @@ export default function Home() {
   // Services data for ServiceCards component
   const services = [
     {
-      title: "Marketing",
-      content: "Strategisk markedsføring som driver vekst og øker synligheten for din virksomhet. Vi hjelper deg med å nå dine målgrupper effektivt.",
-      slug: "marketing",
+      title: "Innholdsproduksjon",
+      content: "Innhold som skaper inntrykk, salg eller engasjement. Uansett ditt behov skaper vi innhold til anledningen",
+      slug: "Innholdsproduksjon",
     },
     {
-      title: "SEO",
-      content: "Optimalisering test for søkemotorer som sikrer at din bedrift blir funnet av potensielle kunder på nett. Vi fokuserer på resultater og organisk trafikk.",
-      slug: "seo",
+      title: "Betalt annonsering",
+      content: "vi hjelper deg med kampanjer som konverterer så du kan fokusere på det du er best på",
+      slug: "Paidads",
     },
     {
-      title: "AI Workshop",
-      content: "Lær hvordan kunstig intelligens kan transformere din virksomhet gjennom våre interaktive og praktiske workshop-opplegg.",
-      slug: "ai-workshop",
+      title: "AI",
+      content: "Har din bedrift behov for AI? Vi hjelper med å implementere løsninger som sparer tid og bemanning",
+      slug: "AI",
     },
     {
-      title: "Development",
-      content: "Skreddersydd programvareutvikling for web, mobil og desktop. Våre utviklere bygger innovative og skalerbare løsninger for din virksomhet.",
-      slug: "development",
+      title: "Rådgivning",
+      content: "Lyst å gjøre jobben selv men trenger hjelp for å komme i gang? Vi hjelper dere på veien",
+      slug: "Radgivning",
     },
   ]
 
