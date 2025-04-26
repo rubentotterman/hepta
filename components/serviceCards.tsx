@@ -2,22 +2,24 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
-// Type definisjon for tjenestekort
+// Type definisjon for tjenestekort - lagt til image
 interface Service {
   title: string
   content: string
   slug: string
   bgColor?: string
   accentColor?: string
+  image?: string // Ny egenskap for bilder
 }
 
 interface ServiceCardsProps {
   services: Service[]
 }
 
-// Definerer tilfeldig bakgrunnsbilde for hver tjeneste (disse kan erstattes med faktiske bilder)
+// Definerer tilfeldig bakgrunnsbilde for hver tjeneste (brukes bare hvis image ikke er angitt)
 const serviceBgColors = [
   "from-blue-900 to-blue-950",
   "from-purple-900 to-purple-950",
@@ -115,13 +117,29 @@ const ServiceCards = ({ services }: ServiceCardsProps) => {
             id={`service-card-${index}`}
             key={service.slug} 
             className="flex-shrink-0 snap-center first:ml-12 last:mr-12"
-            style={{ width: '320px' }} // Økt bredde fra 280px til 320px
+            style={{ width: '320px' }}
           >
             <div 
-              className={`relative rounded-lg overflow-hidden shadow-2xl h-[540px] bg-gradient-to-b ${service.bgColor} transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/30 transform-gpu`}
+              className={`relative rounded-lg overflow-hidden shadow-2xl h-[540px] transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/30 transform-gpu ${!service.image ? `bg-gradient-to-b ${service.bgColor}` : ''}`}
             >
+              {/* Bildelag - vises kun hvis bilde er definert */}
+              {service.image && (
+                <div className="absolute inset-0 w-full h-full">
+                  <Image 
+                    src={service.image}
+                    alt={service.title}
+                    fill
+                    className="object-cover"
+                    sizes="320px"
+                    priority
+                  />
+                  {/* Mørk overlegg for å gjøre tekst lesbar */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30" />
+                </div>
+              )}
+              
               {/* Tekstinnhold - plassert nederst på kortet */}
-              <div className="absolute inset-x-0 bottom-0 p-8 flex flex-col items-start">
+              <div className="absolute inset-x-0 bottom-0 p-8 flex flex-col items-start z-10">
                 {/* Tittel - stort, fet skrift */}
                 <h3 className={`text-4xl font-bold text-white mb-6 ${service.title.length > 15 ? 'text-3xl' : 'text-4xl'}`}>
                   {service.title.toUpperCase()}

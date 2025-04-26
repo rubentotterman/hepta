@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import ServiceCards from "@/components/serviceCards"
-import GridLayout from "@/components/GridLayout"
+
 
 export default function Home() {
   const { isLoggedIn } = useAuth()
@@ -37,21 +37,25 @@ export default function Home() {
       title: "Innholdsproduksjon",
       content: "Innhold som skaper inntrykk, salg eller engasjement. Uansett ditt behov skaper vi innhold til anledningen",
       slug: "Innholdsproduksjon",
+       image: "/creation.jpg",
     },
     {
       title: "Betalt annonsering",
       content: "vi hjelper deg med kampanjer som konverterer så du kan fokusere på det du er best på",
       slug: "Paidads",
+       image: "/paid.jpg",
     },
     {
       title: "AI",
       content: "Har din bedrift behov for AI? Vi hjelper med å implementere løsninger som sparer tid og bemanning",
       slug: "AI",
+       image: "/ai.jpg",
     },
     {
       title: "Rådgivning",
       content: "Lyst å gjøre jobben selv men trenger hjelp for å komme i gang? Vi hjelper dere på veien",
       slug: "Radgivning",
+       image: "/consulting.jpg",
     },
   ]
 
