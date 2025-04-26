@@ -6,10 +6,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, Code, Lightbulb, Megaphone } from "lucide-react"
 import { ContactFormModal } from "@/components/contact-form-modal"
 import { useState } from "react"
+import { useRouter } from 'next/navigation'
 
 export default function OmOss() {
   // Remove the useEffect that redirects to dashboard
   // Remove the early return if isLoggedIn
+  const router = useRouter()
   const [isContactModalOpen, setIsContactModalOpen] = useState(false)
 
   const capabilities = [
@@ -31,9 +33,9 @@ export default function OmOss() {
   ]
 
   const teamMembers = [
-    { name: "Anna Larsen", role: "CEO & Markedsføringssjef", image: "/placeholder.svg?height=400&width=400" },
-    { name: "Erik Hansen", role: "CTO & Utviklingsleder", image: "/placeholder.svg?height=400&width=400" },
-    { name: "Sofie Berg", role: "AI Spesialist", image: "/placeholder.svg?height=400&width=400" },
+    { name: "Jonathan Dverg", role: "Daglig leder & Styreleder", image: "/dverg.jpg" },
+    { name: "Alexander Amundsen", role: "CTO & Utviklingsleder", image: "/amu.JPG" },
+  
   ]
 
   return (
@@ -110,10 +112,10 @@ export default function OmOss() {
           La oss sammen skape innovative løsninger som driver din virksomhet fremover. Kontakt oss i dag for en
           uforpliktende samtale om ditt neste prosjekt.
         </p>
-        <Button size="lg" className="mt-8 h-14 px-8 text-lg" onClick={() => setIsContactModalOpen(true)}>
-          Kontakt oss
-          <ArrowRight className="ml-2 h-5 w-5" />
-        </Button>
+        <Button size="lg" className="mt-8 h-14 px-8 text-lg" onClick={() => router.push("/contact")}>
+    Kontakt oss
+    <ArrowRight className="ml-2 h-5 w-5" />
+  </Button>
       </section>
 
       {/* Contact Form Modal */}

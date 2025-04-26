@@ -125,7 +125,7 @@ export default function Home() {
             <div className="relative aspect-video overflow-hidden rounded-lg bg-black/50">
               <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/10 via-transparent to-transparent" />
               <Image
-                src="/placeholder.svg?height=400&width=600"
+                src="/team.jpg"
                 alt="Hepta team at work"
                 fill
                 className="object-cover"
