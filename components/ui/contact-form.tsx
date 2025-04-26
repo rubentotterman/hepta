@@ -41,6 +41,13 @@ const globalStyles = `
     opacity: 0;
     transition: all 500ms ease;
   }
+  
+  .input-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: white;
+  }
 `;
 
 interface FormData {
@@ -319,7 +326,7 @@ export function ContactForm() {
       
       {isSuccess ? (
         <div className="text-center mt-20">
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-800 mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-800 mb-6">
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               className="h-8 w-8 text-white" 
@@ -411,6 +418,7 @@ export function ContactForm() {
                     // Spesiell håndtering for navnefelt (både fornavn og etternavn)
                     <div className="space-y-4">
                       <div className="relative">
+                        <div className="input-label">Fornavn</div>
                         <input
                           id="firstName"
                           name="firstName"
@@ -434,6 +442,7 @@ export function ContactForm() {
                       </div>
                       
                       <div className="relative">
+                        <div className="input-label">Etternavn</div>
                         <input
                           id="lastName"
                           name="lastName"
@@ -459,6 +468,7 @@ export function ContactForm() {
                     // Spesiell håndtering for kontaktfelt (både e-post og telefon)
                     <div className="space-y-4">
                       <div className="relative">
+                        <div className="input-label">E-post</div>
                         <input
                           id="email"
                           name="email"
@@ -482,6 +492,7 @@ export function ContactForm() {
                       </div>
                       
                       <div className="relative">
+                        <div className="input-label">Telefon</div>
                         <input
                           id="phone"
                           name="phone"
@@ -510,11 +521,11 @@ export function ContactForm() {
                         value={formData[step.formField] || ""}
                         onChange={handleChange}
                         placeholder={step.placeholder}
-                        rows={1}
+                        rows={4}
                         required={step.isRequired}
                         autoFocus
                         onKeyDown={handleKeyDown}
-                        className="w-full bg-transparent border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-white text-lg pb-2 placeholder-gray-500 resize-none"
+                        className="w-full bg-transparent border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-white text-lg pb-2 placeholder-gray-500 min-h-[120px] resize-y"
                       />
                       <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-700">
                         <div 
