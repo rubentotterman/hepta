@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import ServiceCards from "@/components/serviceCards"
+import GridLayout from "@/components/GridLayout"
 
 export default function Home() {
   const { isLoggedIn } = useAuth()
@@ -58,14 +59,30 @@ export default function Home() {
 
   return (
     <div className="space-y-32">
-      <section className="relative overflow-hidden pt-20">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-500/20 via-background to-background" />
+      <section className="relative min-h-screen overflow-hidden pt-20">
+        {/* Simple background image approach */}
+        <div className="absolute inset-0 bg-gray-900">
+          <Image 
+            src="/herobg.jpg"
+            alt=""
+            fill
+            priority
+            quality={100}
+            className="object-cover"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-black/50" />
+        </div>
+        
+        {/* Gradient overlay for better text visibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
+        
         <div className="container relative">
           <div className="mx-auto max-w-[800px] text-center">
             <h1 className="animate-fade-in bg-gradient-to-br from-white to-gray-400 bg-clip-text text-5xl font-extrabold leading-tight tracking-tight text-transparent sm:text-6xl md:text-7xl">
-              Vi er dgxggddxgfpkås Hepta, utviklere, markedsførere og problemløsere
+              Vi er Hepta, utviklere, markedsførere og problemløsere
             </h1>
-            <p className="mt-8 animate-fade-in text-lg leading-relaxed text-gray-400 [animation-delay:200ms]">
+            <p className="mt-8 animate-fade-in text-lg leading-relaxed text-gray-200 [animation-delay:200ms]">
               Vårt team av erfarne utviklere, designere og produktledere hjelper deg å realisere ideene dine. Enten du
               er en startup eller et stort selskap, har vi deg dekket.
             </p>
