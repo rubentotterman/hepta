@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { ContactFormModal } from "@/components/contact-form-modal"
 import ServiceCards from "@/components/serviceCards"
+import { useRouter } from 'next/navigation'
+
 
 const services = [
   {
@@ -71,6 +73,7 @@ const services = [
 ]
 
 export default function Tjenester() {
+  const router = useRouter()
   const [isContactModalOpen, setIsContactModalOpen] = useState(false)
 
   return (
@@ -104,10 +107,10 @@ export default function Tjenester() {
           La oss sammen skape løsninger som driver din virksomhet fremover. Kontakt oss i dag for en uforpliktende
           samtale.
         </p>
-        <Button size="lg" className="mt-8 h-14 px-8 text-lg" onClick={() => setIsContactModalOpen(true)}>
-          Kontakt oss
-          <ArrowRight className="ml-2 h-5 w-5" />
-        </Button>
+        <Button size="lg" className="mt-8 h-14 px-8 text-lg" onClick={() => router.push("/contact")}>
+    Kontakt oss
+    <ArrowRight className="ml-2 h-5 w-5" />
+  </Button>
       </section>
 
       {/* Contact Form Modal */}
