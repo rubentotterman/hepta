@@ -3,16 +3,15 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowRight, ArrowUpRight, CheckCircle } from "lucide-react"
+import { ArrowRight, CheckCircle } from "lucide-react"
 import Image from "next/image"
 import { LoginModal } from "@/components/login-modal"
 import { ContactFormModal } from "@/components/contact-form-modal"
 import { useAuth } from "@/contexts/auth-context"
-<<<<<<< HEAD
-import { useRouter } from "next/navigation"
-=======
->>>>>>> 69aeb3a16dc37c8a20cf316982c7b57deac30985
 import Link from "next/link"
+import { useRouter } from 'next/navigation'
+import ServiceCards from "@/components/serviceCards"
+
 
 export default function Home() {
   const { isLoggedIn } = useAuth()
@@ -32,24 +31,31 @@ export default function Home() {
     router.push("/tjenester")
   }
 
+  // Services data for ServiceCards component
   const services = [
     {
-      name: "Marketing",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Strategisk markedsføring for vekst",
+      title: "Innholdsproduksjon",
+      content: "Innhold som skaper inntrykk, salg eller engasjement. Uansett ditt behov skaper vi innhold til anledningen",
+      slug: "Innholdsproduksjon",
+       image: "/creation.jpg",
     },
     {
-      name: "SEO",
-      image:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DyrXKUz2yM46weXW-generated_image.jpg-kKQYqkWAsZ3VesarAD0MN6iFfmxZ6V.jpeg",
-      description: "Optimalisering for søkemotorer",
+      title: "Betalt annonsering",
+      content: "vi hjelper deg med kampanjer som konverterer så du kan fokusere på det du er best på",
+      slug: "Paidads",
+       image: "/paid.jpg",
     },
-    { name: "AI Workshop", image: "/placeholder.svg?height=300&width=400", description: "Innovativ AI-opplæring" },
     {
-      name: "Development",
-      image:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NScCSeoMhG3otlsf-generated_image.jpg-AO2NVqUPiotxAfwLxsgSIZ9jhnXhek.jpeg",
-      description: "Skreddersydd programvareutvikling",
+      title: "AI",
+      content: "Har din bedrift behov for AI? Vi hjelper med å implementere løsninger som sparer tid og bemanning",
+      slug: "AI",
+       image: "/ai.jpg",
+    },
+    {
+      title: "Rådgivning",
+      content: "Lyst å gjøre jobben selv men trenger hjelp for å komme i gang? Vi hjelper dere på veien",
+      slug: "Radgivning",
+       image: "/consulting.jpg",
     },
   ]
 
@@ -57,14 +63,30 @@ export default function Home() {
 
   return (
     <div className="space-y-32">
-      <section className="relative overflow-hidden pt-20">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-500/20 via-background to-background" />
+      <section className="relative min-h-screen overflow-hidden pt-20">
+        {/* Simple background image approach */}
+        <div className="absolute inset-0 bg-gray-900">
+          <Image 
+            src="/herobg.jpg"
+            alt=""
+            fill
+            priority
+            quality={100}
+            className="object-cover"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-black/50" />
+        </div>
+        
+        {/* Gradient overlay for better text visibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
+        
         <div className="container relative">
           <div className="mx-auto max-w-[800px] text-center">
             <h1 className="animate-fade-in bg-gradient-to-br from-white to-gray-400 bg-clip-text text-5xl font-extrabold leading-tight tracking-tight text-transparent sm:text-6xl md:text-7xl">
               Vi er Hepta, utviklere, markedsførere og problemløsere
             </h1>
-            <p className="mt-8 animate-fade-in text-lg leading-relaxed text-gray-400 [animation-delay:200ms]">
+            <p className="mt-8 animate-fade-in text-lg leading-relaxed text-gray-200 [animation-delay:200ms]">
               Vårt team av erfarne utviklere, designere og produktledere hjelper deg å realisere ideene dine. Enten du
               er en startup eller et stort selskap, har vi deg dekket.
             </p>
@@ -90,36 +112,10 @@ export default function Home() {
             Vi tilbyr en rekke tjenester for å hjelpe din bedrift å vokse og lykkes
           </p>
         </div>
-        <div className="mt-16 grid gap-8 sm:grid-cols-2">
-          {services.map((service, i) => (
-            <Card
-              key={i}
-              className="group relative overflow-hidden border-gray-800 bg-gray-900/50 transition-all duration-300 hover:border-gray-700 hover:bg-gray-900 hover:shadow-lg hover:shadow-orange-500/10"
-            >
-              <CardContent className="p-6">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
-                  <Image
-                    src={service.image || "/placeholder.svg"}
-                    alt={`Illustrasjon av ${service.name}`}
-                    fill
-                    className="transition-transform duration-300 group-hover:scale-105"
-                    style={{ objectFit: "cover" }}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="mt-6">
-                  <h3 className="text-2xl font-semibold tracking-tight">{service.name}</h3>
-                  <p className="mt-2 text-gray-400">{service.description}</p>
-                  <Button
-                    variant="link"
-                    className="mt-4 h-auto p-0 text-orange-500 transition-colors hover:text-orange-400"
-                  >
-                    Les mer <ArrowUpRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        
+        {/* Her importeres ServiceCards-komponenten */}
+        <div className="mt-16">
+          <ServiceCards services={services} />
         </div>
       </section>
 
@@ -129,7 +125,7 @@ export default function Home() {
             <div className="relative aspect-video overflow-hidden rounded-lg bg-black/50">
               <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/10 via-transparent to-transparent" />
               <Image
-                src="/placeholder.svg?height=400&width=600"
+                src="/team.jpg"
                 alt="Hepta team at work"
                 fill
                 className="object-cover"
@@ -186,4 +182,3 @@ export default function Home() {
     </div>
   )
 }
-

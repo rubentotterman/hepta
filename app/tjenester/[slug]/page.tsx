@@ -6,19 +6,18 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 const services = {
-  teknologi: {
-    title: "Teknologi",
-    description: "Vi utvikler skreddersydde teknologiske løsninger som driver din virksomhet fremover.",
+  Innholdsproduksjon: {
+    title: "innholdsproduksjon",
+    description: "Innhold som skaper inntrykk, salg eller engasjement. Uansett ditt behov skaper vi innhold til anledningen",
     content: `Teknologi er kjernen i moderne forretningsutvikling. Vårt team av eksperter kombinerer innovativ tenkning med solid teknisk kompetanse for å skape løsninger som gir din virksomhet et konkurransefortrinn.
 
     Vi tilbyr:
-    • Systemutvikling og integrasjon
-    • Cloud-løsninger og infrastruktur
-    • Teknisk arkitektur og rådgivning
-    • DevOps og kontinuerlig leveranse
-    • Sikkerhet og personvern
+    • Skreddersydd Filmproduksjon
+    • Logo, firmaprofil og grafisk design
+    • Teksting og oversettelse
+    • Animasjon og motion graphics
     
-    Våre løsninger er bygget for fremtiden, med fokus på skalerbarhet, sikkerhet og brukervennlighet.`,
+    Vi lager innholdet som folket elsker å dele. Fra reklamefilmer til bedriftsvideoer, vi skaper innhold som engasjerer og konverterer.`,
   },
   "app-utvikling": {
     title: "App-utvikling",
@@ -32,7 +31,7 @@ const services = {
     • UX/UI-design
     • App-vedlikehold og support`,
   },
-  ai: {
+  AI: {
     title: "AI",
     description: "Utnytt kraften i kunstig intelligens for å optimalisere din virksomhet.",
     content: `Kunstig intelligens revolusjonerer måten vi jobber på. Vi hjelper deg å implementere AI-løsninger som gir konkurransefortrinn og effektiviserer arbeidsprosesser.
@@ -68,14 +67,18 @@ const services = {
     • Intern kommunikasjon
     • Digital PR og omdømmebygging`,
   },
-  innholdsprodusering: {
-    title: "Innholdsprodusering",
-    description: "Kreativt og engasjerende innhold som forteller din historie.",
-    content: `Vi skaper innhold som engasjerer og konverterer. Fra artikler og blogginnlegg til videoer og podkaster, vi hjelper deg å fortelle din historie på en måte som resonerer med målgruppen.
-
+  Paidads: {
+    title: "Betalt annonsering",
+    description: "Vi hjelper deg med kampanjer som konverterer.",
+    content: `Betalt annonsering er en effektiv måte å nå ut til målgruppen din på. Vi hjelper deg med å utvikle og implementere annonseringsstrategier som gir resultater.
+    
     Vi tilbyr:
-    • Tekstproduksjon
-    • Videoproduksjon
+    • Meta annonsering
+    • Google Ads
+    • YouTube annonsering
+    • TikTok annonsering
+    • LinkedIn annonsering
+    • Analyse av 
     • Sosiale medier-innhold
     • Nyhetsbrev og e-post
     • Content marketing-strategi`,
@@ -92,17 +95,17 @@ const services = {
     • Emballasjedesign
     • Digital design`,
   },
-  animering: {
-    title: "Animering",
-    description: "Bring historier til live gjennom animasjon.",
-    content: `Animasjon er et kraftfullt verktøy for å formidle komplekse budskap på en engasjerende måte. Vi skaper animert innhold som fenger og formidler.
+  Radgivning: {
+    title: "Rådgivning",
+    description: "Lyst å gjøre jobben selv men trenger hjelp for å komme i gang? Vi hjelper dere på veien",
+    content: `Vi hjelper dere med å utvikle gode kampanjer som konverterer og/ eller skaper inntrykk. Vår rådgivning baserer seg på resultat og fokuserer på at dere skal lykkes med deres mål.
 
     Vi tilbyr:
-    • 2D og 3D-animasjon
-    • Motion graphics
-    • Karakteranimasjon
-    • Eksplanerende videoer
-    • Interaktiv animasjon`,
+    • SoMe rådgivning
+    • Kampanjerådgivning
+    • PR og kommunikasjonsrådgivning
+    • Målgruppeanalyse
+    • Strategisk rådgivning`,
   },
   "film-og-animasjon": {
     title: "Film og animasjon",

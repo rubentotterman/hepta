@@ -17,7 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 // Load Stripe outside of component render to avoid recreating Stripe object on every render
 const stripePromise = loadStripe(
-  "pk_test_51NTj6ECBZbubqLlTkG0te9lkV8yeJ2oICi7xozoKXI6iftnjKhBLOhI28HgOEd4UIk8UGzqsMhXx8A5MQFTEJnXm009dnJfaPI",
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
 )
 
 // Define the CheckoutForm component directly in this file
@@ -365,4 +365,3 @@ export default function BetalFaktura() {
     </div>
   )
 }
-
