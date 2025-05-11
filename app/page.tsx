@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import ServiceCards from "@/components/serviceCards"
-
+import BigTextGrid from "@/components/BigTextGrid"; // <<<<<< 1. IMPORT BigTextGrid HERE
 
 export default function Home() {
   const { isLoggedIn } = useAuth()
@@ -63,10 +63,11 @@ export default function Home() {
 
   return (
     <div className="space-y-32">
+      {/* --------------- HERO SECTION STARTS HERE --------------- */}
       <section className="relative min-h-screen overflow-hidden pt-20">
         {/* Simple background image approach */}
         <div className="absolute inset-0 bg-gray-900">
-          <Image 
+          <Image
             src="/herobg.jpg"
             alt=""
             fill
@@ -77,19 +78,16 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-black/50" />
         </div>
-        
+
         {/* Gradient overlay for better text visibility */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
-        
+
         <div className="container relative">
           <div className="mx-auto max-w-[800px] text-center">
             <h1 className="animate-fade-in bg-gradient-to-br from-white to-gray-400 bg-clip-text text-5xl font-extrabold leading-tight tracking-tight text-transparent sm:text-6xl md:text-7xl">
-              Vi er Hepta, utviklere, markedsførere og problemløsere
+            Vi forvandler digitale rom til vekstreiser gjennom sømløs sammenfletting av visjon og presisjon.
             </h1>
-            <p className="mt-8 animate-fade-in text-lg leading-relaxed text-gray-200 [animation-delay:200ms]">
-              Vårt team av erfarne utviklere, designere og produktledere hjelper deg å realisere ideene dine. Enten du
-              er en startup eller et stort selskap, har vi deg dekket.
-            </p>
+
             <div className="mt-12 flex justify-center gap-4">
               <Button
                 className="animate-fade-in h-14 px-8 text-lg [animation-delay:400ms]"
@@ -104,6 +102,9 @@ export default function Home() {
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
       </section>
+      {/* --------------- HERO SECTION ENDS HERE --------------- */}
+
+      <BigTextGrid /> {/* <<<<<< 2. ADD BigTextGrid COMPONENT HERE */}
 
       <section className="container">
         <div className="text-center">
@@ -112,7 +113,7 @@ export default function Home() {
             Vi tilbyr en rekke tjenester for å hjelpe din bedrift å vokse og lykkes
           </p>
         </div>
-        
+
         {/* Her importeres ServiceCards-komponenten */}
         <div className="mt-16">
           <ServiceCards services={services} />
