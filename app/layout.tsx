@@ -1,6 +1,7 @@
+// app/layout.tsx
 import type React from "react"
 import { Inter } from "next/font/google"
-import "./globals.css"
+import "./globals.css" // Sørg for at globals.css ikke har motstridende height/margin/padding for html/body
 import { ThemeProvider } from "@/components/theme-provider"
 import { PageWrapper } from "@/components/page-wrapper"
 import { AuthProvider } from "@/contexts/auth-context"
@@ -27,15 +28,17 @@ export default async function RootLayout({
   } = await supabase.auth.getSession()
 
   return (
-    <html lang="en" className="dark">
-      <body className={inter.className}>
+    <html lang="en" className="dark h-full bg-black"> {/* Lade til h-full og en base bg-black */}
+      <body className={`${inter.className} h-full`}> {/* Lade til h-full */}
+        {/* ThemeProvider og AuthProvider rendrer vanligvis ikke egne DOM-elementer som trenger styling, */}
+        {/* men hvis de gjør det (f.eks. en div), kan de trenge h-full også. */}
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           <AuthProvider serverSession={session}>
-            <PageWrapper>{children}</PageWrapper>
+            {/* PageWrapper må være satt opp til å bruke den tilgjengelige høyden */}
+            <PageWrapper>{children}</PageWrapper> 
           </AuthProvider>
         </ThemeProvider>
 
-        {/* Script to check for test session and set a cookie for the middleware */}
         <Script id="check-test-session" strategy="beforeInteractive">
           {`
             if (typeof window !== 'undefined') {
@@ -50,4 +53,3 @@ export default async function RootLayout({
     </html>
   )
 }
-
