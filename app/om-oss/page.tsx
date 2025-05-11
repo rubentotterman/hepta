@@ -44,11 +44,9 @@ export default function OmOss() {
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-gray-800 px-6 py-20 text-center sm:px-12">
         <div className="relative z-10">
           <h1 className="animate-fade-in bg-gradient-to-br from-white to-gray-400 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent sm:text-6xl">
-            Om Hepta
           </h1>
           <p className="mx-auto mt-6 max-w-2xl animate-fade-in text-lg text-gray-400 [animation-delay:200ms]">
-            Vi er et allsidig team av eksperter innen markedsføring, utvikling og AI. Vår misjon er å drive innovasjon
-            og vekst for våre klienter gjennom skreddersydde digitale løsninger.
+          Om oss. Vår lidenskap er å utfordre det etablerte. Med skreddersydde teknologiske løsninger og designkompetanse tar vi bedrifter fra der de er i dag til der de er  i morgen.
           </p>
         </div>
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-500/20 via-transparent to-transparent" />

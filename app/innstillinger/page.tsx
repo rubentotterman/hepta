@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -14,19 +14,240 @@ export default function Innstillinger() {
   const { user } = useAuth()
   const supabase = createClientComponentClient()
 
+  // Profilstate
+  const [profileData, setProfileData] = useState({
+    name: "",
+    company: "",
+  })
+
+  // Notifications state
   const [notifications, setNotifications] = useState({
     email: true,
     marketing: false,
     updates: true,
   })
 
+  // Password states
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [message, setMessage] = useState<string | null>(null)
+  const [error, setError] = useState(null)
+  const [message, setMessage] = useState(null)
 
+  // UI states
+  const [profileLoading, setProfileLoading] = useState(false)
+  const [notificationsLoading, setNotificationsLoading] = useState(false)
+
+  // Hent brukerdata når komponenten lastes
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!user) return
+
+      try {
+        console.log("Henter profil for bruker med ID:", user.id)
+        
+        // Important: Use user_id for the lookup, not id
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('name, company, notifications, stripe_customer_id, role')
+          .eq('user_id', user.id)
+          .single()
+
+        if (error) {
+          console.error("Feil ved henting av profil:", error)
+          
+          // Check if the profile exists at all
+          const { count, error: countError } = await supabase
+            .from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+          
+          if (countError) {
+            console.error("Feil ved sjekk av profil:", countError)
+            return
+          }
+          
+          // Create profile if it doesn't exist
+          if (count === 0) {
+            console.log("Profil eksisterer ikke, oppretter ny")
+            
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                user_id: user.id,
+                name: "",
+                company: "",
+                notifications: {
+                  email: true,
+                  marketing: false,
+                  updates: true
+                },
+                updated_at: new Date()
+              })
+            
+            if (insertError) {
+              console.error("Feil ved opprettelse av profil:", insertError)
+              return
+            }
+          }
+          
+          return
+        }
+
+        if (data) {
+          console.log("Mottok profildata:", data)
+          
+          // Set profile data
+          setProfileData({
+            name: data.name || "",
+            company: data.company || "",
+          })
+
+          // Set notifications if they exist in the data
+          if (data.notifications) {
+            console.log("Setter notifications:", data.notifications)
+            setNotifications(data.notifications)
+          }
+        }
+      } catch (error) {
+        console.error('Feil ved henting av brukerdata:', error)
+      }
+    }
+
+    fetchUserProfile()
+  }, [user, supabase])
+
+  // Håndter endring av profilinformasjon
+  const handleProfileChange = (e) => {
+    const { id, value } = e.target
+    setProfileData(prev => ({
+      ...prev,
+      [id]: value
+    }))
+  }
+
+  // Lagre profildata
+  const saveProfileData = async () => {
+    if (!user) return
+
+    setProfileLoading(true)
+    setError(null)
+    setMessage(null)
+
+    try {
+      // Check if profile exists
+      const { count, error: countError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+      
+      if (countError) {
+        throw countError
+      }
+      
+      let saveError
+      
+      if (count === 0) {
+        // Create a new profile if it doesn't exist
+        const { error } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: user.id,
+            name: profileData.name,
+            company: profileData.company,
+            notifications: notifications,
+            updated_at: new Date()
+          })
+        
+        saveError = error
+      } else {
+        // Update existing profile - use user_id for lookup
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            name: profileData.name,
+            company: profileData.company,
+            updated_at: new Date(),
+          })
+          .eq('user_id', user.id)
+        
+        saveError = error
+      }
+
+      if (saveError) {
+        console.error("Feil ved lagring:", saveError)
+        throw saveError
+      }
+
+      setMessage("Profilinformasjon lagret!")
+    } catch (error) {
+      console.error('Feil ved lagring av profildata:', error)
+      setError("Kunne ikke lagre profilinformasjon.")
+    } finally {
+      setProfileLoading(false)
+    }
+  }
+
+  // Lagre varslingsinnstillinger
+  const saveNotificationSettings = async () => {
+    if (!user) return
+
+    setNotificationsLoading(true)
+    setError(null)
+    setMessage(null)
+
+    try {
+      console.log("Lagrer varslingsinnstillinger:", notifications)
+      
+      // Check if profile exists
+      const { count, error: countError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+      
+      if (countError) {
+        throw countError
+      }
+      
+      let saveError
+      
+      if (count === 0) {
+        // Create a new profile if it doesn't exist
+        const { error } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: user.id,
+            notifications: notifications,
+            updated_at: new Date()
+          })
+        
+        saveError = error
+      } else {
+        // Update existing profile - use user_id for lookup
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            notifications,
+            updated_at: new Date(),
+          })
+          .eq('user_id', user.id)
+        
+        saveError = error
+      }
+
+      if (saveError) throw saveError
+
+      setMessage("Varslingsinnstillinger lagret!")
+    } catch (error) {
+      console.error('Feil ved lagring av varslingsinnstillinger:', error)
+      setError("Kunne ikke lagre varslingsinnstillinger.")
+    } finally {
+      setNotificationsLoading(false)
+    }
+  }
+
+  // Eksisterende handleChangePassword-funksjon
   const handleChangePassword = async () => {
     setError(null)
     setMessage(null)
@@ -94,19 +315,40 @@ export default function Innstillinger() {
               <CardDescription>Administrer din profilinformasjon</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+              {message && <p className="text-green-500 text-sm">{message}</p>}
+              
               <div className="space-y-2">
                 <Label htmlFor="email">E-post</Label>
                 <Input id="email" defaultValue={user?.email || ""} readOnly className="bg-gray-950/50" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="name">Navn</Label>
-                <Input id="name" placeholder="Ditt navn" className="bg-gray-950/50" />
+                <Input 
+                  id="name" 
+                  placeholder="Ditt navn" 
+                  className="bg-gray-950/50" 
+                  value={profileData.name}
+                  onChange={handleProfileChange}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="company">Selskap</Label>
-                <Input id="company" placeholder="Ditt selskap" className="bg-gray-950/50" />
+                <Input 
+                  id="company" 
+                  placeholder="Ditt selskap" 
+                  className="bg-gray-950/50" 
+                  value={profileData.company}
+                  onChange={handleProfileChange}
+                />
               </div>
-              <Button className="mt-4 bg-orange-500 hover:bg-orange-600">Lagre endringer</Button>
+              <Button 
+                className="mt-4 bg-orange-500 hover:bg-orange-600"
+                onClick={saveProfileData}
+                disabled={profileLoading}
+              >
+                {profileLoading ? "Lagrer..." : "Lagre endringer"}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -118,6 +360,9 @@ export default function Innstillinger() {
               <CardDescription>Administrer dine varslingsinnstillinger</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+              {message && <p className="text-green-500 text-sm">{message}</p>}
+              
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">E-postvarsler</p>
@@ -148,7 +393,13 @@ export default function Innstillinger() {
                   onCheckedChange={(checked) => setNotifications({ ...notifications, updates: checked })}
                 />
               </div>
-              <Button className="mt-4 bg-orange-500 hover:bg-orange-600">Lagre innstillinger</Button>
+              <Button 
+                className="mt-4 bg-orange-500 hover:bg-orange-600"
+                onClick={saveNotificationSettings}
+                disabled={notificationsLoading}
+              >
+                {notificationsLoading ? "Lagrer..." : "Lagre innstillinger"}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -193,7 +444,11 @@ export default function Innstillinger() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
-              <Button onClick={handleChangePassword} disabled={loading} className="mt-4 bg-orange-500 hover:bg-orange-600">
+              <Button 
+                onClick={handleChangePassword} 
+                disabled={loading} 
+                className="mt-4 bg-orange-500 hover:bg-orange-600"
+              >
                 {loading ? "Oppdaterer..." : "Oppdater passord"}
               </Button>
             </CardContent>

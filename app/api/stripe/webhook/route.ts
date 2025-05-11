@@ -7,7 +7,7 @@ import { cookies } from "next/headers"
 export async function POST(req: Request) {
   const body = await req.text()
   const signature = headers().get("stripe-signature") as string
-  const webhookSecret = "whsec_b8ed9fefdf1bf740ac67575cd3c33ce604f7d88d0b8017955301518a5589446c"
+  const webhookSecret = "whsec_gMh8MmHSkC6qztCNILXZroXie1gpqFvQ"
 
   let event
 
@@ -24,6 +24,9 @@ export async function POST(req: Request) {
     } else {
       // In production with a webhook secret, verify the signature
       try {
+        if (!stripe) {
+          throw new Error("Stripe instance is not initialized")
+        }
         event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
       } catch (err: any) {
         console.log(`❌ Webhook signature verification failed: ${err.message}`)

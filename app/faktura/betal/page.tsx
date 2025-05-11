@@ -48,13 +48,17 @@ function CheckoutForm({
 
     try {
       // Check if we're using a mock client secret
-      if (process.env.NODE_ENV === "development" && elements._commonOptions.clientSecret?.includes("_secret_")) {
-        console.log("Using mock payment flow in development mode")
-        // Simulate successful payment
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-        onSuccess?.()
-        return
-      }
+      if (process.env.NODE_ENV === "development" && 
+        elements && 
+        elements._commonOptions && 
+        typeof elements._commonOptions.clientSecret === 'string' && 
+        elements._commonOptions.clientSecret.includes("_secret_")) {
+      console.log("Using mock payment flow in development mode");
+      // Simulate successful payment
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      onSuccess?.();
+      return;
+    }
 
       const { error } = await stripe.confirmPayment({
         elements,
