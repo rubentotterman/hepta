@@ -1,207 +1,139 @@
+// components/serviceCards.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
-// Type definisjon for tjenestekort - lagt til image
 interface Service {
-  title: string
-  content: string
-  slug: string
-  bgColor?: string
-  accentColor?: string
-  image?: string // Ny egenskap for bilder
+  title: string; // Can contain "\n" for line breaks
+  content: string; // This will be the subtitle
+  slug: string;
+  image?: string;
+  accentColorClass?: string; // Use this to match the provided image's accent colors
 }
 
 interface ServiceCardsProps {
-  services: Service[]
+  services: Service[];
 }
 
-// Definerer tilfeldig bakgrunnsbilde for hver tjeneste (brukes bare hvis image ikke er angitt)
-const serviceBgColors = [
-  "from-blue-900 to-blue-950",
-  "from-purple-900 to-purple-950",
-  "from-orange-900 to-orange-950",
-  "from-green-900 to-green-950",
-  "from-red-900 to-red-950",
-  "from-pink-900 to-pink-950",
-  "from-indigo-900 to-indigo-950",
-  "from-yellow-900 to-yellow-950",
-  "from-teal-900 to-teal-950",
-  "from-cyan-900 to-cyan-950",
-]
-
-// Definerer accentfarge for hver tjeneste
-const serviceAccentColors = [
+// Updated to match example image more closely
+const defaultAccentColors = [
   "bg-blue-500",
-  "bg-purple-400",
-  "bg-orange-500",
-  "bg-green-500",
-  "bg-red-400",
-  "bg-pink-500",
-  "bg-indigo-400",
-  "bg-yellow-400",
-  "bg-teal-400",
-  "bg-cyan-500",
-]
+];
 
-const ServiceCards = ({ services }: ServiceCardsProps) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+export const ServiceCards = ({ services }: ServiceCardsProps) => {
   const [isScrolling, setIsScrolling] = useState(false);
-  
-  // Beregner hvilke kort som skal vises og legger til farger
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const visibleCards = services.map((service, index) => ({
     ...service,
-    bgColor: service.bgColor || serviceBgColors[index % serviceBgColors.length],
-    accentColor: service.accentColor || serviceAccentColors[index % serviceAccentColors.length],
+    accentColorClass: service.accentColorClass || defaultAccentColors[index % defaultAccentColors.length],
   }));
-  
-  const goToPrevious = () => {
-    if (isScrolling) return;
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (isScrolling || !containerRef.current) return;
     setIsScrolling(true);
-    
-    setCurrentIndex((prev) => {
-      const newIndex = prev === 0 ? services.length - 1 : prev - 1;
-      
-      // Scroller til det nye kortet
-      const container = document.getElementById('service-cards-container');
-      const card = document.getElementById(`service-card-${newIndex}`);
-      
-      if (container && card) {
-        container.scrollTo({
-          left: card.offsetLeft - container.offsetLeft,
-          behavior: 'smooth'
-        });
-      }
-      
-      setTimeout(() => setIsScrolling(false), 500);
-      return newIndex;
-    });
+    const container = containerRef.current;
+    const firstCard = container.firstChild as HTMLElement;
+    if (!firstCard) {
+      setIsScrolling(false);
+      return;
+    }
+    const cardWidth = firstCard.offsetWidth;
+    // Get gap from computed style
+    const gapStyle = window.getComputedStyle(container).getPropertyValue('gap');
+    const gap = parseInt(gapStyle) || 32; // Default gap if not found
+
+    const scrollAmount = direction === 'left' ? -(cardWidth + gap) : (cardWidth + gap);
+
+    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    setTimeout(() => setIsScrolling(false), 500);
   };
-  
-  const goToNext = () => {
-    if (isScrolling) return;
-    setIsScrolling(true);
-    
-    setCurrentIndex((prev) => {
-      const newIndex = prev === services.length - 1 ? 0 : prev + 1;
-      
-      // Scroller til det nye kortet
-      const container = document.getElementById('service-cards-container');
-      const card = document.getElementById(`service-card-${newIndex}`);
-      
-      if (container && card) {
-        container.scrollTo({
-          left: card.offsetLeft - container.offsetLeft,
-          behavior: 'smooth'
-        });
-      }
-      
-      setTimeout(() => setIsScrolling(false), 500);
-      return newIndex;
-    });
-  };
-  
+
   return (
-    <div className="relative py-12">
-      {/* Kort-container */}
-      <div 
-        id="service-cards-container"
-        className="flex snap-x snap-mandatory overflow-x-auto hide-scrollbar pb-12 gap-12"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {visibleCards.map((service, index) => (
-          <div 
-            id={`service-card-${index}`}
-            key={service.slug} 
-            className="flex-shrink-0 snap-center first:ml-12 last:mr-12"
-            style={{ width: '320px' }}
-          >
-            <div 
-              className={`relative rounded-lg overflow-hidden shadow-2xl h-[540px] transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/30 transform-gpu ${!service.image ? `bg-gradient-to-b ${service.bgColor}` : ''}`}
-            >
-              {/* Bildelag - vises kun hvis bilde er definert */}
-              {service.image && (
-                <div className="absolute inset-0 w-full h-full">
-                  <Image 
-                    src={service.image}
-                    alt={service.title}
-                    fill
-                    className="object-cover"
-                    sizes="320px"
-                    priority
-                  />
-                  {/* Mørk overlegg for å gjøre tekst lesbar */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30" />
-                </div>
-              )}
-              
-              {/* Tekstinnhold - plassert nederst på kortet */}
-              <div className="absolute inset-x-0 bottom-0 p-8 flex flex-col items-start z-10">
-                {/* Tittel - stort, fet skrift */}
-                <h3 className={`text-4xl font-bold text-white mb-6 ${service.title.length > 15 ? 'text-3xl' : 'text-4xl'}`}>
-                  {service.title.toUpperCase()}
-                </h3>
-                
-                {/* Farget linje */}
-                <div className={`h-1 w-20 mb-6 ${service.accentColor}`}></div>
-                
-                {/* Beskrivelse - første del av beskrivelsen */}
-                <p className="text-white text-base opacity-90">
-                  {service.content.length > 100 
-                    ? `${service.content.substring(0, 100)}...` 
-                    : service.content}
-                </p>
-                
-                {/* Les mer lenke */}
-                <Link 
+      <div className="relative py-12 md:py-16 lg:py-20 bg-black">
+        <div
+            ref={containerRef}
+            id="service-cards-container"
+            className="flex snap-x snap-mandatory overflow-x-auto hide-scrollbar pb-8 md:pb-12 gap-x-6 sm:gap-x-8 md:gap-x-10 px-4 sm:px-6 md:px-8 lg:px-12"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {visibleCards.map((service, index) => (
+              <Link
                   href={`/tjenester/${service.slug}`}
-                  className="mt-6 text-white text-base flex items-center group hover:text-orange-400 transition-colors"
+                  key={service.slug}
+                  className="group flex-shrink-0 snap-center block w-[280px] sm:w-[300px] md:w-[340px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:ring-white"
+                  passHref
+              >
+                <div // This div is now the visual card that receives hover effects
+                    className="relative rounded-xl md:rounded-2xl overflow-hidden shadow-lg h-[420px] sm:h-[460px] md:h-[500px] transition-all duration-300 group-hover:shadow-2xl transform-gpu" // Restored previous shadow logic
                 >
-                  <span>Les mer</span>
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        ))}
+                  {service.image && (
+                      <div className="absolute inset-0 w-full h-full">
+                        <Image
+                            src={service.image}
+                            alt={service.title}
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105" // Restored image zoom
+                            sizes="(max-width: 640px) 280px, (max-width: 768px) 300px, 340px"
+                            priority={index <= 2}
+                        />
+                        {/* Overlay to ensure text readability */}
+                        <div className="absolute inset-0 bg-black/70 group-hover:bg-black/60 transition-colors duration-300" />
+                      </div>
+                  )}
+                  {!service.image && (
+                      <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center">
+                        <p className="text-neutral-500">Image not available</p>
+                      </div>
+                  )}
+
+                  {/* Text Content Wrapper - Positioned towards the bottom AND CENTERED */}
+                  <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6 md:p-7 z-10 flex flex-col items-center text-center"> {/* Added items-center and text-center */}
+                    <h3 className="font-semibold text-white text-3xl sm:text-4xl leading-tight sm:leading-tight mb-2 sm:mb-3" style={{ whiteSpace: 'pre-line' }}>
+                      {service.title}
+                    </h3>
+
+                    {/* Accent line will be centered due to parent's items-center */}
+                    <div className={`h-[3px] w-16 sm:w-[70px] mb-3 sm:mb-4 ${service.accentColorClass}`}></div>
+
+                    <p className="text-neutral-200 text-sm sm:text-base leading-normal">
+                      {service.content}
+                    </p>
+
+                    {/* "Les mer" element completely removed */}
+                  </div>
+                </div>
+              </Link>
+          ))}
+        </div>
+
+        <div className="flex justify-center gap-x-3 sm:gap-x-4 w-full mx-auto mt-8 md:mt-10">
+          <button
+              onClick={() => scroll('left')}
+              className="bg-neutral-800/80 hover:bg-neutral-700/90 text-white rounded-full p-2.5 sm:p-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:ring-white transition-all hover:scale-105 disabled:opacity-50"
+              aria-label="Forrige"
+              disabled={isScrolling}
+          >
+            <ArrowLeft size={20} strokeWidth={2.5} />
+          </button>
+
+          <button
+              onClick={() => scroll('right')}
+              className="bg-neutral-800/80 hover:bg-neutral-700/90 text-white rounded-full p-2.5 sm:p-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:ring-white transition-all hover:scale-105 disabled:opacity-50"
+              aria-label="Neste"
+              disabled={isScrolling}
+          >
+            <ArrowRight size={20} strokeWidth={2.5} />
+          </button>
+        </div>
+
+        <style jsx>{`
+          .hide-scrollbar::-webkit-scrollbar { display: none; }
+          .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        `}</style>
       </div>
-      
-      {/* Navigasjonsknapper */}
-      <div className="flex justify-between w-full max-w-6xl mx-auto px-8 mt-6">
-        <button 
-          onClick={goToPrevious}
-          className="bg-black border border-gray-800 hover:bg-gray-900 text-white rounded-full p-3 focus:outline-none transition-all hover:scale-110"
-          aria-label="Forrige"
-          disabled={isScrolling}
-        >
-          <ArrowLeft size={28} />
-        </button>
-        
-        <button 
-          onClick={goToNext}
-          className="bg-white hover:bg-gray-100 text-black rounded-full p-3 focus:outline-none transition-all hover:scale-110"
-          aria-label="Neste"
-          disabled={isScrolling}
-        >
-          <ArrowRight size={28} />
-        </button>
-      </div>
-      
-      {/* CSS for å skjule scrollbar men beholde funksjonalitet */}
-      <style jsx>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-    </div>
   );
 };
-
-export default ServiceCards;

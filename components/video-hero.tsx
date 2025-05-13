@@ -9,10 +9,9 @@ interface VideoHeroProps {
 }
 
 export const VideoHero: React.FC<VideoHeroProps> = ({ videoSrc, title, subtitle }) => {
-    // ... component code ...
     return (
-        <section className="relative h-[50vh] w-full overflow-hidden">
-            {/* ... rest of your VideoHero JSX ... */}
+        // MODIFIED LINE: Changed h-[50vh] to h-[60vh] (or your desired value)
+        <section className="relative h-[60vh] w-full overflow-hidden">
             <video autoPlay loop muted playsInline className="absolute left-0 top-0 h-full w-full object-cover -z-10">
                 <source src={videoSrc} type="video/mp4" />
                 Your browser does not support the video tag.
@@ -29,6 +28,3 @@ export const VideoHero: React.FC<VideoHeroProps> = ({ videoSrc, title, subtitle 
         </section>
     );
 };
-
-// If you had a default export, remove it or change it to a named export.
-// export default VideoHero; // <--- Remove this if you have it and use the const export above
