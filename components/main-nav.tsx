@@ -1,10 +1,9 @@
-// components/main-nav.tsx
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button"; // Forutsetter at du bruker Shadcn UI Button
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import { LoginModal } from "@/components/login-modal";
 import Image from "next/image";
@@ -25,7 +24,7 @@ export function MainNav() {
   };
 
   const handleContactClick = () => {
-    router.push("/contact"); // Endre '/kontakt' til din faktiske kontaktside-URL
+    router.push("/contact");
   };
 
   const getLinkClass = (path: string) => {
@@ -36,30 +35,27 @@ export function MainNav() {
   };
 
   return (
-    <div className="flex items-center justify-between h-12 md:h-14">
+    <div className="fixed top-0 left-0 w-full z-50 bg-neutral-950 border-b border-neutral-800 px-4 md:px-6 py-2 shadow-sm flex items-center justify-between">
       
-      {/* Venstre "Pilar": Logo og navigasjonslenker */}
-      <div 
-        className="flex items-center bg-neutral-800 px-3 py-2 md:px-4 rounded-r-lg h-full shadow-md" 
-      >
-        <Link href="/" className="flex items-center mr-2 md:mr-3 group" aria-label="Hepta Hjem">
-          <div className="relative h-4 w-auto sm:h-5 aspect-[4/1]"> 
+      {/* Left: Logo + Links */}
+      <div className="flex items-center bg-neutral-800 px-3 py-2 md:px-4 rounded-r-lg h-full shadow-md">
+        <Link href="/" className="flex items-center mr-3 group" aria-label="Hepta Hjem">
+          <div className="relative h-5 w-auto aspect-[4/1]">
             <Image
               src="/A_white_hepta.png"
               alt="Hepta Logo"
-              layout="fill" 
+              layout="fill"
               objectFit="contain"
-              priority 
+              priority
             />
           </div>
         </Link>
-        
-        <nav className="hidden md:flex items-center gap-1.5 md:gap-2">
+
+        <nav className="hidden md:flex items-center gap-2">
           {isLoggedIn ? (
             <>
               <Link href="/" className={getLinkClass("/")}>Hjem</Link>
               <Link href="/dashboard" className={getLinkClass("/dashboard")}>Dashboard</Link>
-              {/* ... andre innloggede lenker ... */}
             </>
           ) : (
             <>
@@ -71,11 +67,11 @@ export function MainNav() {
         </nav>
       </div>
 
-      {/* Høyre Del: Kontakt-knapp og Logg inn/Logg ut knapp */}
-      <div className="flex items-center space-x-2 md:space-x-3 ml-auto"> {/* space-x for mellomrom mellom knapper */}
+      {/* Right: Actions */}
+      <div className="flex items-center space-x-3 ml-auto">
         <Button
-          variant="outline" // Bruker en annen variant for å skille den fra Logg inn/Logg ut
-          className="bg-purple-600 text-neutral-300 hover:bg-neutral-800 hover:text-white font-medium px-3 py-1.5 md:px-4 rounded-md text-xs"
+          variant="outline"
+          className="bg-purple-600 text-neutral-300 hover:bg-purple-700 hover:text-white font-medium px-4 py-1.5 rounded-full text-xs"
           onClick={handleContactClick}
         >
           Kontakt
@@ -83,13 +79,13 @@ export function MainNav() {
         
         <Button
           variant="default"
-          className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-3 py-1.5 md:px-4 rounded-md text-xs" 
+          className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-1.5 rounded-full text-xs"
           onClick={isLoggedIn ? handleLogoutClick : handleLoginClick}
         >
           {isLoggedIn ? "Logg ut" : "Logg inn"}
         </Button>
-        {/* TODO: Mobilmeny-knapp her */}
       </div>
+
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </div>
   );

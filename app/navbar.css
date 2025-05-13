@@ -1,0 +1,25 @@
+/* Navbar styles */
+body {
+  padding-top: 70px;
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-top: 80px; /* Adjust for larger screens */
+  }
+}
+
+.main-nav-animate-in {
+  animation: nav-fade-in 0.5s ease-out forwards;
+}
+
+@keyframes nav-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
