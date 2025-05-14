@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import { LoginModal } from "@/components/login-modal";
-import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 export function MainNav() {
@@ -43,21 +43,30 @@ export function MainNav() {
 
   return (
     <>
-      <div className="fixed top-0 left-0 w-full z-50 bg-neutral-950 border-b  px-4 md:px-6 py-2 shadow-sm flex items-center justify-between">
+      <div className="fixed top-0 left-0 w-full z-50 bg-neutral-950 border-b px-4 md:px-6 py-2 shadow-sm flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center px-3 py-2 md:px-4 rounded-r-lg h-full shadow-md">
-          <Link href="/" className="flex items-center mr-3 group" aria-label="Hepta Hjem">
-            <div className="relative h-5 w-auto aspect-[4/1]">
-              <Image
-                src="/A_white_hepta.png"
-                alt="Hepta Logo"
-                layout="fill"
-                objectFit="contain"
-                priority
-              />
-            </div>
-          </Link>
-        </div>
+<div className="flex items-center px-3 py-2 md:px-4 rounded-r-lg h-full shadow-md">
+  <button
+    onClick={() => {
+      setIsLoginModalOpen(false);
+      setIsMobileMenuOpen(false);
+      window.location.href = "/"; // ✅ Full reload
+    }}
+    className="flex items-center mr-3 group"
+    aria-label="Hepta Hjem"
+  >
+    <div className="relative h-5 w-auto aspect-[4/1]">
+      <Image
+        src="/A_white_hepta.png"
+        alt="Hepta Logo"
+        layout="fill"
+        objectFit="contain"
+        priority
+      />
+    </div>
+  </button>
+</div>
+
 
         {/* Desktop Links */}
         <nav className="hidden md:flex items-center gap-4 ml-4">
@@ -84,11 +93,10 @@ export function MainNav() {
             Kontakt
           </Button>
           <Button
-            className={`${
-              isLoggedIn
+            className={`${isLoggedIn
                 ? "bg-neutral-100 hover:bg-neutral-200 text-neutral-900"
                 : "bg-white hover:bg-gray-100 text-blue-700"
-            } font-medium px-4 py-1.5 rounded-full text-sm`}
+              } font-medium px-4 py-1.5 rounded-full text-sm`}
             onClick={isLoggedIn ? handleLogoutClick : handleLoginClick}
           >
             {isLoggedIn ? "Logg ut" : "Logg inn"}
@@ -127,22 +135,19 @@ export function MainNav() {
           </div>
 
           <div className="flex flex-col gap-3 pt-2">
-            <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full text-sm"
-              onClick={handleContactClick}
+            <button
+              onClick={() => {
+                // If using context or lifting state, make sure modals are closed
+                window.location.href = "/"; // reliable fallback for resetting
+              }}
+              className="flex items-center mr-3 group"
+              aria-label="Hepta Hjem"
             >
-              Kontakt
-            </Button>
-            <Button
-              className={`${
-                isLoggedIn
-                  ? "bg-neutral-100 hover:bg-neutral-200 text-neutral-900"
-                  : "bg-white hover:bg-gray-100 text-blue-700"
-              } font-medium rounded-full text-sm`}
-              onClick={isLoggedIn ? handleLogoutClick : handleLoginClick}
-            >
-              {isLoggedIn ? "Logg ut" : "Logg inn"}
-            </Button>
+              <div className="relative h-5 w-auto aspect-[4/1]">
+                <Image src="/A_white_hepta.png" alt="Hepta Logo" layout="fill" objectFit="contain" priority />
+              </div>
+            </button>
+
           </div>
         </div>
       )}

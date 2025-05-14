@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { LoginModal } from "@/components/login-modal";
 import { ContactFormModal } from "@/components/contact-form-modal";
 import { useAuth } from "@/contexts/auth-context";
-import { useRouter } from "next/navigation";
 import { ServiceCards } from "@/components/serviceCards";
 import { BigTextGrid } from "@/components/BigTextGrid";
 import { TextAndImage } from "@/components/TextAndImage";
@@ -19,6 +19,16 @@ export default function Home() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const previousPath = useRef(pathname);
+
+  // Auto-close contact modal on route change
+  useEffect(() => {
+    if (isContactModalOpen && pathname !== previousPath.current) {
+      setIsContactModalOpen(false);
+    }
+    previousPath.current = pathname;
+  }, [pathname, isContactModalOpen]);
 
   const handleLoginClick = () => setIsLoginModalOpen(true);
   const handleStartClick = () => setIsContactModalOpen(true);
@@ -96,7 +106,7 @@ export default function Home() {
   const blueResponsiveFontSize = "text-[clamp(1rem,_0.5rem_+_2vw,_2.5rem)]";
   const blueTextStyle = `font-bold ${blueResponsiveFontSize} text-blue-500 leading-tight tracking-tight`;
 
-  const mainNavHeight = '5rem';
+  const mainNavHeight = "5rem";
 
   return (
     <div
@@ -110,7 +120,6 @@ export default function Home() {
           className="relative flex flex-col overflow-hidden"
           style={{ minHeight: `calc(100vh - ${mainNavHeight})` }}
         >
-          {/* Background layers */}
           <div
             className={`absolute inset-0 z-0 ${
               shouldPageBeWhite ? "opacity-0" : defaultPageBg
@@ -130,7 +139,6 @@ export default function Home() {
               shouldPageBeWhite ? "to-white dark:to-gray-100" : "to-gray-900 dark:to-black"
             } z-0`}
           />
-          {/* Content */}
           <div className="container mx-auto px-4 relative z-10 flex-grow flex flex-col items-center justify-center py-10 sm:py-16">
             <div className="mx-auto max-w-[800px] text-center">
               <h1 className="animate-fade-in bg-gradient-to-br from-white to-gray-400 bg-clip-text text-5xl font-extrabold leading-tight tracking-tight text-transparent sm:text-6xl md:text-7xl">
@@ -180,18 +188,10 @@ export default function Home() {
         <section ref={triggerSectionRef} className="py-16 sm:py-24 lg:py-32">
           <div className="container mx-auto px-4">
             <div className="mb-16 md:mb-24">
-              <TextAndImage
-                {...section1Data}
-                imageOnLeft={false}
-                isTextBlack={shouldPageBeWhite}
-              />
+              <TextAndImage {...section1Data} imageOnLeft={false} isTextBlack={shouldPageBeWhite} />
             </div>
             <div>
-              <TextAndImage
-                {...section2Data}
-                imageOnLeft={true}
-                isTextBlack={shouldPageBeWhite}
-              />
+              <TextAndImage {...section2Data} imageOnLeft={true} isTextBlack={shouldPageBeWhite} />
             </div>
           </div>
         </section>

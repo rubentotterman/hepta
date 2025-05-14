@@ -1468,9 +1468,6 @@ video {
 .max-h-screen {
   max-height: 100vh;
 }
-.max-h-full {
-  max-height: 100%;
-}
 .min-h-0 {
   min-height: 0px;
 }
@@ -1634,6 +1631,9 @@ video {
 .max-w-3xl {
   max-width: 48rem;
 }
+.max-w-4xl {
+  max-width: 56rem;
+}
 .max-w-\[--skeleton-width\] {
   max-width: var(--skeleton-width);
 }
@@ -1652,9 +1652,6 @@ video {
 }
 .max-w-none {
   max-width: none;
-}
-.max-w-4xl {
-  max-width: 56rem;
 }
 .flex-1 {
   flex: 1 1 0%;
@@ -2433,10 +2430,6 @@ video {
 .fill-current {
   fill: currentColor;
 }
-.object-contain {
-  -o-object-fit: contain;
-     object-fit: contain;
-}
 .object-cover {
   -o-object-fit: cover;
      object-fit: cover;
@@ -2579,9 +2572,6 @@ video {
 .pl-10 {
   padding-left: 2.5rem;
 }
-.pl-2 {
-  padding-left: 0.5rem;
-}
 .pl-2\.5 {
   padding-left: 0.625rem;
 }
@@ -2676,6 +2666,9 @@ video {
 .text-\[clamp\(1rem\2c _0\.5rem_\+_3vw\2c _3rem\)\] {
   font-size: clamp(1rem, 0.5rem + 3vw, 3rem);
 }
+.text-\[clamp\(1rem\2c _1vw_\+_1rem\2c _2rem\)\] {
+  font-size: clamp(1rem, 1vw + 1rem, 2rem);
+}
 .text-base {
   font-size: 1rem;
   line-height: 1.5rem;
@@ -2695,9 +2688,6 @@ video {
 .text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
-}
-.text-\[clamp\(1rem\2c _1vw_\+_1rem\2c _2rem\)\] {
-  font-size: clamp(1rem, 1vw + 1rem, 2rem);
 }
 .font-bold {
   font-weight: 700;
@@ -3060,9 +3050,6 @@ video {
 .duration-1000 {
   transition-duration: 1000ms;
 }
-.duration-150 {
-  transition-duration: 150ms;
-}
 .duration-200 {
   transition-duration: 200ms;
 }
@@ -3115,9 +3102,6 @@ video {
 }
 .duration-1000 {
   animation-duration: 1000ms;
-}
-.duration-150 {
-  animation-duration: 150ms;
 }
 .duration-200 {
   animation-duration: 200ms;
@@ -4480,10 +4464,6 @@ video {
     height: 1rem;
   }
 
-  .sm\:h-6 {
-    height: 1.5rem;
-  }
-
   .sm\:h-\[160px\] {
     height: 160px;
   }
@@ -4526,10 +4506,6 @@ video {
 
   .sm\:w-4 {
     width: 1rem;
-  }
-
-  .sm\:w-6 {
-    width: 1.5rem;
   }
 
   .sm\:w-\[250px\] {
@@ -4679,16 +4655,8 @@ video {
     padding-bottom: 6rem;
   }
 
-  .sm\:pl-3 {
-    padding-left: 0.75rem;
-  }
-
   .sm\:pt-6 {
     padding-top: 1.5rem;
-  }
-
-  .sm\:pt-8 {
-    padding-top: 2rem;
   }
 
   .sm\:text-left {
