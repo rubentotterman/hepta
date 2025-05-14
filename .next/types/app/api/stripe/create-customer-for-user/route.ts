@@ -1,4 +1,4 @@
-// File: /home/ruben/code/hepta/app/api/stripe/create-customer-for-user/route.ts
+// File: /Users/alexanderamundsen/WebstormProjects/wasd/app/api/stripe/create-customer-for-user/route.ts
 import * as entry from '../../../../../../app/api/stripe/create-customer-for-user/route.js'
 import type { NextRequest } from 'next/server.js'
 

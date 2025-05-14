@@ -1,4 +1,4 @@
-// File: /home/ruben/code/hepta/app/page.tsx
+// File: /Users/alexanderamundsen/WebstormProjects/wasd/app/page.tsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
