@@ -70,14 +70,14 @@ export default function Home() {
   };
 
   const section2Data = {
-    imageSrc: "/images/generic-placeholder-300x400.png",
+    imageSrc: "/creativity.jpg",
     altText: "Placeholder image 2",
     title: "Kreativitet og Teknologi",
     paragraphs: [
       "Vi kombinerer nyskapende design med den nyeste teknologien for å skape løsninger som ikke bare ser bra ut, men som også fungerer feilfritt.",
       "Kvalitet og innovasjon er kjernen i alt vi gjør, fra konsept til ferdig produkt.",
     ],
-    imageContainerCustomClass: "aspect-[2/3] bg-gray-400 dark:bg-gray-600",
+    imageContainerCustomClass: "aspect-[4/3] bg-gray-400 dark:bg-gray-600",
   };
 
   const contactAdventureData = {

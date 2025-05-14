@@ -39,7 +39,7 @@ export const BigTextGrid: React.FC = () => {
                             className={`flex-grow flex-shrink-0 basis-[20%] sm:basis-[40%] md:basis-[45%] ${placeholderHeight} rounded-lg overflow-hidden relative`}
                         >
                             <Image
-                                src="/digital.png"
+                                src="/2.jpg"
                                 alt="Digital graphic"
                                 fill
                                 className="object-cover"
@@ -54,7 +54,7 @@ export const BigTextGrid: React.FC = () => {
                             className={`flex-grow flex-shrink-0 basis-[20%] sm:basis-[45%] md:basis-[50%] ${placeholderHeight} rounded-lg overflow-hidden relative bg-neutral-800/30`}
                         >
                             <Image
-                                src="/experiences.png"
+                                src="/1.jpg"
                                 alt="Experiences concept"
                                 fill
                                 className="object-cover"
@@ -68,29 +68,29 @@ export const BigTextGrid: React.FC = () => {
                     </div>
 
 
-                  {/* ----- ROW 3: "TRULY RESONATE DEEPLY." + Image Placeholder ----- */}
-<div className="flex items-center justify-between space-x-3 sm:space-x-4">
-  <h1 className={`${mainTextStyle} flex-shrink min-w-0`}>
-    RESONATE DEEPLY.
-  </h1>
-  <div
-    className={`flex-grow flex-shrink-0 basis-[35%] sm:basis-[45%] md:basis-[45%] ${placeholderHeight} rounded-lg overflow-hidden relative bg-neutral-800/30`}
-  >
-    <Image
-      src="/ok.png"
-      alt="Visual concept"
-      fill
-      className="object-cover"
-      priority
-    />
-  </div>
-</div>
+                    {/* ----- ROW 3: "TRULY RESONATE DEEPLY." + Image Placeholder ----- */}
+                    <div className="flex items-center justify-between space-x-3 sm:space-x-4">
+                        <h1 className={`${mainTextStyle} flex-shrink min-w-0`}>
+                            RESONATE DEEPLY.
+                        </h1>
+                        <div
+                            className={`flex-grow flex-shrink-0 basis-[35%] sm:basis-[45%] md:basis-[45%] ${placeholderHeight} rounded-lg overflow-hidden relative bg-neutral-800/30`}
+                        >
+                            <Image
+                                src="/3.jpg"
+                                alt="Visual concept"
+                                fill
+                                className="object-cover"
+                                priority
+                            />
+                        </div>
+                    </div>
 
 
                     {/* ----- ROW 4: "INNOVATION DRIVES OUR EVERY MOVE." (Full width) ----- */}
                     <div className="w-full pt-12 md:pt-2 mt-10">
                         <h1 className={`${lastLineTextStyle} text-left`}>
-                            
+
                         </h1>
                     </div>
                 </div>
