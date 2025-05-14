@@ -35,7 +35,7 @@ export const TextAndImage: React.FC<TextAndImageProps> = ({
           {title}
         </h2>
         {paragraphs.map((p, index) => (
-            <p key={index} className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+            <p key={index} className="text-base sm:text-lg  leading-relaxed">
               {p}
             </p>
         ))}
