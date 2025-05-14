@@ -88,9 +88,9 @@ export const BigTextGrid: React.FC = () => {
 
 
                     {/* ----- ROW 4: "INNOVATION DRIVES OUR EVERY MOVE." (Full width) ----- */}
-                    <div className="w-full pt-6 md:pt-2">
+                    <div className="w-full pt-12 md:pt-2 mt-10">
                         <h1 className={`${lastLineTextStyle} text-left`}>
-                            INNOVATION DRIVES OUR EVERY MOVE.
+                            
                         </h1>
                     </div>
                 </div>

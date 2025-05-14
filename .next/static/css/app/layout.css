@@ -1701,14 +1701,8 @@ video {
 .basis-\[35\%\] {
   flex-basis: 35%;
 }
-.basis-\[40\%\] {
-  flex-basis: 40%;
-}
 .basis-full {
   flex-basis: 100%;
-}
-.basis-\[50\%\] {
-  flex-basis: 50%;
 }
 .caption-bottom {
   caption-side: bottom;
@@ -2466,10 +2460,6 @@ video {
 .fill-current {
   fill: currentColor;
 }
-.object-contain {
-  -o-object-fit: contain;
-     object-fit: contain;
-}
 .object-cover {
   -o-object-fit: cover;
      object-fit: cover;
@@ -2645,6 +2635,9 @@ video {
 .pt-1 {
   padding-top: 0.25rem;
 }
+.pt-12 {
+  padding-top: 3rem;
+}
 .pt-2 {
   padding-top: 0.5rem;
 }
@@ -2659,6 +2652,9 @@ video {
 }
 .pt-8 {
   padding-top: 2rem;
+}
+.pt-20 {
+  padding-top: 5rem;
 }
 .text-left {
   text-align: left;
@@ -4617,20 +4613,12 @@ video {
     max-width: 36rem;
   }
 
-  .sm\:basis-\[25\%\] {
-    flex-basis: 25%;
-  }
-
   .sm\:basis-\[40\%\] {
     flex-basis: 40%;
   }
 
   .sm\:basis-\[45\%\] {
     flex-basis: 45%;
-  }
-
-  .sm\:basis-\[50\%\] {
-    flex-basis: 50%;
   }
 
   .sm\:flex-row {
@@ -4910,10 +4898,6 @@ video {
 
   .md\:max-w-xl {
     max-width: 36rem;
-  }
-
-  .md\:basis-\[30\%\] {
-    flex-basis: 30%;
   }
 
   .md\:basis-\[45\%\] {
