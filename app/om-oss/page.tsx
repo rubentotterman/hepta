@@ -3,7 +3,7 @@
 
 import { ContactFormModal } from "@/components/contact-form-modal";
 import { VideoHero } from '@/components/video-hero';
-import { ImageTextSplitSection } from '@/components/image-text-split-section';
+import { ImageTextSplitSection } from '@/components/image-text-split-section'; // This import is now correct
 import { ContactCallToAction } from '@/components/ContactCallToAction';
 
 import { useState } from "react";
@@ -28,6 +28,10 @@ export default function OmOss() {
         buttonText: "KONTAKT OSS NÅ",
     };
 
+    // Define alt texts (could be more descriptive)
+    const kreativeMiljoAltText = "Interiør av Heptas kreative kontormiljø";
+    const teknologiSentrumAltText = "Abstrakt representasjon av teknologi";
+
     return (
         <div>
             {/* Video Hero Section (takes 50vh) */}
@@ -41,7 +45,7 @@ export default function OmOss() {
             <section
                 className="min-h-[50vh] flex flex-col items-center justify-center text-center py-12 sm:py-16 bg-background text-foreground px-4"
             >
-                <div className="container"> {/* Container can still be used for max-width of text */}
+                <div className="container">
                     <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
                         HEPTA er din partner for digital transformasjon.
                     </h2>
@@ -49,24 +53,36 @@ export default function OmOss() {
             </section>
 
             {/* First ImageTextSplitSection (Image on Left) */}
-            <ImageTextSplitSection
-                images={kreativeMiljoImages}
-                heading="Vårt Kreative Miljø"
-                text="Se innsiden av vårt kontor hvor ideer blir til virkelighet. Et dynamisk og inspirerende sted designet for samarbeid og nyskapning, utstyrt med den nyeste teknologien for å drive prosjektene dine fremover."
-                imagePosition="left"
-                backgroundColorClass="bg-slate-50 dark:bg-slate-900"
-                enableAutoplay={true}
-            />
+            {/* Apply backgroundColorClass to a wrapper div */}
+            <div className="bg-slate-50 dark:bg-slate-900 py-12 sm:py-16"> {/* Added padding to wrapper */}
+                <div className="container mx-auto"> {/* Optional: Add container for content width control */}
+                    <ImageTextSplitSection
+                        imageSrc={kreativeMiljoImages[0]} // Mapped from images
+                        altText={kreativeMiljoAltText}    // Added alt text
+                        title="Vårt Kreative Miljø"       // Mapped from heading
+                        paragraphs={["Se innsiden av vårt kontor hvor ideer blir til virkelighet. Et dynamisk og inspirerende sted designet for samarbeid og nyskapning, utstyrt med den nyeste teknologien for å drive prosjektene dine fremover."]} // Mapped from text
+                        imageOnLeft={true}                // Mapped from imagePosition="left"
+                        isTextBlack={true}                // Assuming light background needs black text
+                        // enableAutoplay is not a prop of this component
+                    />
+                </div>
+            </div>
 
             {/* Second ImageTextSplitSection (Image on Right) */}
-            <ImageTextSplitSection
-                images={teknologiSentrumImages}
-                heading="Teknologi i Sentrum"
-                text="Vi lever og ånder for teknologi. Vår tilnærming er bygget på å utnytte kraften i moderne verktøy og plattformer for å skape robuste, skalerbare og fremtidsrettede løsninger for våre kunder."
-                imagePosition="right"
-                backgroundColorClass="bg-background"
-                enableAutoplay={false}
-            />
+            {/* Apply backgroundColorClass to a wrapper div */}
+            <div className="bg-background py-12 sm:py-16"> {/* Added padding to wrapper */}
+                <div className="container mx-auto"> {/* Optional: Add container for content width control */}
+                    <ImageTextSplitSection
+                        imageSrc={teknologiSentrumImages[0]} // Mapped from images
+                        altText={teknologiSentrumAltText}    // Added alt text
+                        title="Teknologi i Sentrum"          // Mapped from heading
+                        paragraphs={["Vi lever og ånder for teknologi. Vår tilnærming er bygget på å utnytte kraften i moderne verktøy og plattformer for å skape robuste, skalerbare og fremtidsrettede løsninger for våre kunder."]} // Mapped from text
+                        imageOnLeft={false}                  // Mapped from imagePosition="right"
+                        isTextBlack={true}                   // Assuming light background needs black text
+                        // enableAutoplay is not a prop of this component
+                    />
+                </div>
+            </div>
 
             {/* CTA Section using ContactCallToAction */}
             <ContactCallToAction

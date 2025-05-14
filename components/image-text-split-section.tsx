@@ -1,10 +1,11 @@
-// components/TextAndImage.tsx
+// components/image-text-split-section.tsx
 "use client";
 
 import React from "react";
 import Image from "next/image";
 
-interface TextAndImageProps {
+// Props interface for ImageTextSplitSection
+interface ImageTextSplitSectionProps {
     imageSrc: string;
     altText: string;
     title: string;
@@ -14,18 +15,18 @@ interface TextAndImageProps {
     isTextBlack?: boolean;
 }
 
-export const TextAndImage: React.FC<TextAndImageProps> = ({
-    imageSrc,
-    altText,
-    title,
-    paragraphs,
-    imageOnLeft,
-    imageContainerCustomClass = "",
-    isTextBlack = false,
-}) => {
+// Component renamed to ImageTextSplitSection
+export const ImageTextSplitSection: React.FC<ImageTextSplitSectionProps> = ({
+                                                                                imageSrc,
+                                                                                altText,
+                                                                                title,
+                                                                                paragraphs,
+                                                                                imageOnLeft,
+                                                                                imageContainerCustomClass = "",
+                                                                                isTextBlack = false,
+                                                                            }) => {
     const titleColorClass = isTextBlack ? "text-black" : "text-white";
     const paragraphColorClass = isTextBlack ? "text-black" : "text-white";
-
 
     const TextBlock = (
         <div className="w-full md:w-1/2 p-6 sm:p-10 flex flex-col justify-center">
@@ -47,7 +48,7 @@ export const TextAndImage: React.FC<TextAndImageProps> = ({
                 alt={altText}
                 fill
                 className="object-cover rounded-lg"
-                priority
+                priority // Consider if priority is needed for all instances
             />
         </div>
     );
