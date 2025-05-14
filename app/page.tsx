@@ -180,6 +180,12 @@ export default function Home() {
                   Vi tilbyr en rekke tjenester for å hjelpe din bedrift å vokse og lykkes
                 </p>
               </div>
+
+              
+
+
+
+
               <div className="mt-16">
                 <ServiceCards services={services} />
               </div>

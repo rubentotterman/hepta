@@ -1,8 +1,10 @@
 // components/BigTextGrid.tsx
 import React from 'react';
 
+import Image from "next/image";
+
 // --- Placeholder Height (Increased) ---
-const placeholderHeight = "h-14 sm:h-16 md:h-[72px] lg:h-[88px] xl:h-[96px]";
+const placeholderHeight = "h-[120px] sm:h-[160px] md:h-[200px] lg:h-[280px] xl:h-[350px]";
 
 // Temporary styling for visualizing placeholders
 const placeholderVisualizeStyle = "border border-dashed border-neutral-700 bg-neutral-800/30 flex items-center justify-center text-xs text-neutral-500 p-1";
@@ -28,29 +30,62 @@ export const BigTextGrid: React.FC = () => {
 
             <div className="relative z-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-5xl px-0">
                 <div className="flex flex-col space-y-2 sm:space-y-3 md:space-y-4">
-                    {/* ----- ROW 1: "WE CRAFT DIGITAL" + Placeholder ----- */}
+                    {/* ----- ROW 1: "WE CRAFT DIGITAL" + Image Placeholder ----- */}
                     <div className="flex items-center justify-between space-x-3 sm:space-x-4">
                         <h1 className={`${mainTextStyle} flex-shrink min-w-0`}>
                             WE CRAFT DIGITAL
                         </h1>
-                        <div className={`flex-grow flex-shrink-0 basis-[35%] sm:basis-[40%] md:basis-[45%] ${placeholderHeight} ${placeholderVisualizeStyle} rounded-lg`}>P1</div>
-                    </div>
+                        <div
+                            className={`flex-grow flex-shrink-0 basis-[35%] sm:basis-[40%] md:basis-[45%] ${placeholderHeight} rounded-lg overflow-hidden relative`}
+                        >
+                            <Image
+                                src="/digital.png"
+                                alt="Digital graphic"
+                                fill
+                                className="object-cover"
+                                priority
+                            />
+                        </div>
 
-                    {/* ----- ROW 2: Placeholder + "EXPERIENCES THAT" ----- */}
+                    </div>
+                    {/* ----- ROW 2: Image Placeholder + "EXPERIENCES THAT" ----- */}
                     <div className="flex items-center justify-between space-x-3 sm:space-x-4">
-                        <div className={`flex-grow flex-shrink-0 basis-[40%] sm:basis-[45%] md:basis-[50%] ${placeholderHeight} ${placeholderVisualizeStyle} rounded-lg`}>P2</div>
+                        <div
+                            className={`flex-grow flex-shrink-0 basis-[40%] sm:basis-[45%] md:basis-[50%] ${placeholderHeight} rounded-lg overflow-hidden relative bg-neutral-800/30`}
+                        >
+                            <Image
+                                src="/experiences.png"
+                                alt="Experiences concept"
+                                fill
+                                className="object-cover"
+                                priority
+                            />
+                        </div>
+
                         <h1 className={`${mainTextStyle} text-right flex-shrink min-w-0`}>
                             EXPERIENCES THAT
                         </h1>
                     </div>
 
-                    {/* ----- ROW 3: "TRULY RESONATE DEEPLY." + Placeholder ----- */}
+
+                    {/* ----- ROW 3: "TRULY RESONATE DEEPLY." + Image Placeholder ----- */}
                     <div className="flex items-center justify-between space-x-3 sm:space-x-4">
                         <h1 className={`${mainTextStyle} flex-shrink min-w-0`}>
                             TRULY RESONATE DEEPLY.
                         </h1>
-                        <div className={`flex-grow flex-shrink-0 basis-[20%] sm:basis-[25%] md:basis-[30%] ${placeholderHeight} ${placeholderVisualizeStyle} rounded-lg`}>P3</div>
+                        <div
+                            className={`flex-grow flex-shrink-0 basis-[20%] sm:basis-[25%] md:basis-[30%] ${placeholderHeight} rounded-lg overflow-hidden relative bg-neutral-800/30`}
+                        >
+                            <Image
+                                src="/ok.png"
+                                alt="Visual concept"
+                                fill
+                                className="object-cover"
+                                priority
+                            />
+                        </div>
                     </div>
+
 
                     {/* ----- ROW 4: "INNOVATION DRIVES OUR EVERY MOVE." (Full width) ----- */}
                     <div className="w-full pt-1 md:pt-2">
