@@ -5,7 +5,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { ContactFormModal } from "@/components/contact-form-modal"
-import ServiceCards from "@/components/serviceCards"
+import { ServiceCards } from "@/components/serviceCards"
 import { useRouter } from 'next/navigation'
 
 

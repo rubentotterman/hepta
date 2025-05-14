@@ -1,13 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatAmountFromStripe } from "@/lib/stripe"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
+import { ArrowUpDown, Calendar, Check, Clock, Download, ExternalLink, FileText, Search } from "lucide-react"
+import { Input } from "@/components/ui/input"
 
 interface Invoice {
   id: string
@@ -24,6 +26,8 @@ export function InvoiceList() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
   const router = useRouter()
   const { sessionToken, isLoggedIn } = useAuth()
 
@@ -38,11 +42,11 @@ export function InvoiceList() {
 
         if (useMockData) {
           console.log("Using mock invoice data in development")
-          // Mock data for development
+          // Mock data for development - expanded with more examples
           const mockInvoices = [
             {
               id: "in_mock_1",
-              number: "MOCK001",
+              number: "INV-001",
               amount_due: 10000, // 100.00 in cents
               currency: "nok",
               status: "open",
@@ -52,13 +56,43 @@ export function InvoiceList() {
             },
             {
               id: "in_mock_2",
-              number: "MOCK002",
+              number: "INV-002",
               amount_due: 25000, // 250.00 in cents
               currency: "nok",
               status: "paid",
-              due_date: Math.floor(Date.now() / 1000) + 86400 * 15, // 15 days from now
+              due_date: Math.floor(Date.now() / 1000) - 86400 * 15, // 15 days ago
               hosted_invoice_url: "#",
-              created: Math.floor(Date.now() / 1000) - 86400 * 7, // 7 days ago
+              created: Math.floor(Date.now() / 1000) - 86400 * 30, // 30 days ago
+            },
+            {
+              id: "in_mock_3",
+              number: "INV-003",
+              amount_due: 15000, // 150.00 in cents
+              currency: "nok",
+              status: "open",
+              due_date: Math.floor(Date.now() / 1000) + 86400 * 7, // 7 days from now
+              hosted_invoice_url: "#",
+              created: Math.floor(Date.now() / 1000) - 86400 * 5, // 5 days ago
+            },
+            {
+              id: "in_mock_4",
+              number: "INV-004",
+              amount_due: 35000, // 350.00 in cents
+              currency: "nok",
+              status: "paid",
+              due_date: Math.floor(Date.now() / 1000) - 86400 * 45, // 45 days ago
+              hosted_invoice_url: "#",
+              created: Math.floor(Date.now() / 1000) - 86400 * 60, // 60 days ago
+            },
+            {
+              id: "in_mock_5",
+              number: "INV-005",
+              amount_due: 5000, // 50.00 in cents
+              currency: "nok",
+              status: "draft",
+              due_date: Math.floor(Date.now() / 1000) + 86400 * 14, // 14 days from now
+              hosted_invoice_url: "#",
+              created: Math.floor(Date.now() / 1000) - 86400 * 2, // 2 days ago
             },
           ]
           setInvoices(mockInvoices)
@@ -115,15 +149,27 @@ export function InvoiceList() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "paid":
-        return <Badge className="bg-green-600">Betalt</Badge>
+        return (
+          <Badge className="bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-800">
+            <Check className="mr-1 h-3 w-3" /> Betalt
+          </Badge>
+        )
       case "open":
-        return <Badge className="bg-yellow-600">Åpen</Badge>
+        return (
+          <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-800">
+            <Clock className="mr-1 h-3 w-3" /> Åpen
+          </Badge>
+        )
       case "draft":
-        return <Badge className="bg-gray-600">Utkast</Badge>
+        return (
+          <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-800">
+            <FileText className="mr-1 h-3 w-3" /> Utkast
+          </Badge>
+        )
       case "uncollectible":
-        return <Badge className="bg-red-600">Ikke innkrevbar</Badge>
+        return <Badge className="bg-red-100 text-red-700 hover:bg-red-200 hover:text-red-800">Ikke innkrevbar</Badge>
       case "void":
-        return <Badge className="bg-gray-600">Annullert</Badge>
+        return <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-800">Annullert</Badge>
       default:
         return <Badge>{status}</Badge>
     }
@@ -137,102 +183,167 @@ export function InvoiceList() {
     })
   }
 
+  const filteredInvoices = invoices.filter((invoice) => {
+    const matchesSearch = invoice.number.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStatus = statusFilter === "all" || invoice.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
+
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <Card key={i} className="border-gray-800 bg-gray-900/50">
-            <CardHeader className="pb-2">
-              <Skeleton className="h-6 w-1/3" />
-              <Skeleton className="h-4 w-1/4" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <Skeleton className="h-5 w-1/4" />
-                <Skeleton className="h-9 w-24" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <Skeleton className="h-[400px] w-full" />
       </div>
     )
   }
 
-  if (error) {
+  if (error && invoices.length === 0) {
     return (
-      <Card className="border-red-800 bg-red-900/20">
-        <CardHeader>
-          <CardTitle>Feil ved lasting av fakturaer</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-red-400">{error}</p>
-          <p className="mt-2 text-gray-400">Viser tilgjengelige fakturaer nedenfor.</p>
-          {invoices.length === 0 && (
-            <Button onClick={() => window.location.reload()} variant="outline" className="mt-4">
-              Prøv igjen
-            </Button>
-          )}
+      <Card className="border-red-200 bg-red-50">
+        <CardContent className="p-6">
+          <h3 className="text-lg font-medium text-red-700">Feil ved lasting av fakturaer</h3>
+          <p className="mt-2 text-gray-700">{error}</p>
+          <Button onClick={() => window.location.reload()} variant="outline" className="mt-4">
+            Prøv igjen
+          </Button>
         </CardContent>
-      </Card>
-    )
-  }
-
-  if (invoices.length === 0) {
-    return (
-      <Card className="border-gray-800 bg-gray-900/50">
-        <CardHeader>
-          <CardTitle>Ingen fakturaer</CardTitle>
-          <CardDescription>Du har ingen fakturaer for øyeblikket.</CardDescription>
-        </CardHeader>
       </Card>
     )
   }
 
   return (
     <div className="space-y-4">
-      {invoices.map((invoice) => (
-        <Card key={invoice.id} className="border-gray-800 bg-gray-900/50">
-          <CardHeader className="pb-2">
-            <div className="flex justify-between items-center">
-              <CardTitle>Faktura #{invoice.number}</CardTitle>
-              {getStatusBadge(invoice.status)}
-            </div>
-            <CardDescription>
-              Opprettet: {formatDate(invoice.created)} | Forfallsdato: {formatDate(invoice.due_date)}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center">
-              <div className="text-xl font-bold">
-                {formatAmountFromStripe(invoice.amount_due).toFixed(2)} {invoice.currency.toUpperCase()}
-              </div>
-              <div className="space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    invoice.hosted_invoice_url !== "#"
-                      ? window.open(invoice.hosted_invoice_url, "_blank")
-                      : alert("Dette er en testfaktura uten ekstern URL.")
-                  }
-                >
-                  Vis faktura
-                </Button>
-                {invoice.status === "open" && (
-                  <Button
-                    className="bg-orange-500 hover:bg-orange-600"
-                    size="sm"
-                    onClick={() => handlePayInvoice(invoice.id)}
-                  >
-                    Betal nå
-                  </Button>
-                )}
-              </div>
-            </div>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="relative w-full md:w-64">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+          <Input
+            type="search"
+            placeholder="Søk faktura..."
+            className="bg-white pl-9 text-gray-900 border-gray-200 focus-visible:ring-blue-500"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-[180px]">
+            <select
+              className="w-full h-10 rounded-md border border-gray-200 bg-white text-gray-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">Alle statuser</option>
+              <option value="open">Åpen</option>
+              <option value="paid">Betalt</option>
+              <option value="draft">Utkast</option>
+            </select>
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+          >
+            <Download className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {filteredInvoices.length === 0 ? (
+        <Card className="border-gray-200 bg-white shadow-sm">
+          <CardContent className="p-12 text-center">
+            <FileText className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-4 text-lg font-medium text-gray-900">Ingen fakturaer funnet</h3>
+            <p className="mt-2 text-gray-600">
+              {searchTerm || statusFilter !== "all"
+                ? "Ingen fakturaer matcher dine søkekriterier."
+                : "Du har ingen fakturaer for øyeblikket."}
+            </p>
+            {(searchTerm || statusFilter !== "all") && (
+              <Button
+                variant="outline"
+                className="mt-4 border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                onClick={() => {
+                  setSearchTerm("")
+                  setStatusFilter("all")
+                }}
+              >
+                Tilbakestill filter
+              </Button>
+            )}
           </CardContent>
         </Card>
-      ))}
+      ) : (
+        <div className="rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                    <div className="flex items-center">
+                      Faktura #
+                      <ArrowUpDown className="ml-1 h-3 w-3" />
+                    </div>
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Dato</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Forfallsdato</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Status</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">Beløp</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">Handlinger</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredInvoices.map((invoice) => (
+                  <tr key={invoice.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="px-4 py-3 font-medium text-gray-900">{invoice.number}</td>
+                    <td className="px-4 py-3 text-gray-700">
+                      <div className="flex items-center">
+                        <Calendar className="mr-1.5 h-3.5 w-3.5 text-gray-500" />
+                        {formatDate(invoice.created)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      <div className="flex items-center">
+                        <Calendar className="mr-1.5 h-3.5 w-3.5 text-gray-500" />
+                        {formatDate(invoice.due_date)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">{getStatusBadge(invoice.status)}</td>
+                    <td className="px-4 py-3 text-right font-medium text-gray-900">
+                      {formatAmountFromStripe(invoice.amount_due).toFixed(2)} {invoice.currency.toUpperCase()}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          className="h-8 w-8 rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                          onClick={() =>
+                            invoice.hosted_invoice_url !== "#"
+                              ? window.open(invoice.hosted_invoice_url, "_blank")
+                              : alert("Dette er en testfaktura uten ekstern URL.")
+                          }
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          <span className="sr-only">Vis faktura</span>
+                        </button>
+                        {invoice.status === "open" && (
+                          <button
+                            className="rounded-md bg-blue-500 px-2 py-1 text-sm font-medium text-white hover:bg-blue-600"
+                            onClick={() => handlePayInvoice(invoice.id)}
+                          >
+                            Betal nå
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
-

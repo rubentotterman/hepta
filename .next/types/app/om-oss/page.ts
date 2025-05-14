@@ -1,4 +1,4 @@
-// File: /Users/alexanderamundsen/hepta/hepta-2/app/om-oss/page.tsx
+// File: /home/ruben/code/hepta/app/om-oss/page.tsx
 import * as entry from '../../../../app/om-oss/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

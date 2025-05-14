@@ -43,9 +43,9 @@ export function MainNav() {
 
   return (
     <>
-      <div className="fixed top-0 left-0 w-full z-50 bg-neutral-950 border-b border-neutral-800 px-4 md:px-6 py-2 shadow-sm flex items-center justify-between">
+      <div className="fixed top-0 left-0 w-full z-50 bg-neutral-950 border-b  px-4 md:px-6 py-2 shadow-sm flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center bg-neutral-800 px-3 py-2 md:px-4 rounded-r-lg h-full shadow-md">
+        <div className="flex items-center px-3 py-2 md:px-4 rounded-r-lg h-full shadow-md">
           <Link href="/" className="flex items-center mr-3 group" aria-label="Hepta Hjem">
             <div className="relative h-5 w-auto aspect-[4/1]">
               <Image
