@@ -14,7 +14,7 @@ const nextConfig = {
       "sk_test_51NTj6ECBZbubqLlTavZEEYr8YqLtMwVYfzIY8EyT3kXY2yuSv6z7hsiQ2omjZnQ1TMIFee3emq7HIcMAe4rWdAoc00CZhpLtEf",
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
       "pk_test_51NTj6ECBZbubqLlTkG0te9lkV8yeJ2oICi7xozoKXI6iftnjKhBLOhI28HgOEd4UIk8UGzqsMhXx8A5MQFTEJnXm009dnJfaPI",
-    STRIPE_WEBHOOK_SECRET: "whsec_b8ed9fefdf1bf740ac67575cd3c33ce604f7d88d0b8017955301518a5589446c",
+    STRIPE_WEBHOOK_SECRET: "whsec_81bb8c2505b7b8af2511740588e6f59407c04246bbd196ad7fce2b43367fbe69",
   },
   // Add this to suppress warnings about missing environment variables during development
   webpack: (config, { isServer }) => {

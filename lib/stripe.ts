@@ -1,143 +1,183 @@
-import Stripe from "stripe"
+// lib/stripe.ts
+import Stripe from "stripe";
 
-// Check if we're in development mode
-const isDevelopment = process.env.NODE_ENV === "development"
+const isDevelopment = process.env.NODE_ENV === "development";
 
-// Initialize Stripe with the provided secret key
-// Use a test key for development and handle missing keys gracefully
-const getStripeInstance = () => {
-  const apiKey = process.env.STRIPE_SECRET_KEY || process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY
+// --- Funksjon for å initialisere Stripe ---
+const getStripeInstance = (): Stripe | null => {
+  const apiKeyFromEnv = process.env.STRIPE_SECRET_KEY;
 
-  if (!apiKey) {
-    console.warn("⚠️ No Stripe API key found. Using mock data for Stripe operations.")
-    return null
+  console.log("\n--- DEBUG: lib/stripe.ts -> getStripeInstance ---");
+  console.log("NODE_ENV:", process.env.NODE_ENV);
+  console.log("Raw STRIPE_SECRET_KEY from env:", apiKeyFromEnv);
+
+  if (!apiKeyFromEnv) {
+    console.warn("⚠️ lib/stripe.ts: STRIPE_SECRET_KEY is NOT SET in environment variables. Stripe operations will be mocked or fail.");
+    return null;
   }
 
-  // Check if we're trying to use a live key in development
-  if (isDevelopment && apiKey.startsWith("sk_live_")) {
-    console.warn("⚠️ Using a live Stripe key in development environment. Consider using a test key instead.")
-  }
-
-  try {
-    return new Stripe(apiKey, {
-      apiVersion: "2023-10-16", // Use the latest API version
-    })
-  } catch (error) {
-    console.error("Failed to initialize Stripe:", error)
-    return null
-  }
-}
-
-export const stripe = getStripeInstance()
-
-// Log Stripe operations in development mode
-const logStripeOperation = (operation: string, ...args: any[]) => {
-  if (isDevelopment) {
-    console.log(`🔄 Stripe ${operation}:`, ...args)
-  }
-}
-
-// Helper function to format amount for Stripe (converts NOK to øre)
-export const formatAmountForStripe = (amount: number): number => {
-  return Math.round(amount * 100)
-}
-
-// Helper function to format amount from Stripe (converts øre to NOK)
-export const formatAmountFromStripe = (amount: number): number => {
-  return amount / 100
-}
-
-// Create a Stripe customer
-export const createCustomer = async (email: string, name?: string) => {
-  try {
-    logStripeOperation("createCustomer", { email, name })
-
-    // In development mode, use test mode
+  if (apiKeyFromEnv.startsWith("sk_live_")) {
+    console.warn("🔴 lib/stripe.ts: WARNING: Attempting to use a LIVE Stripe key (sk_live_).");
     if (isDevelopment) {
-      console.log("⚠️ Using test mode for Stripe operations")
-
-      // In development, we can mock the customer creation
-      return {
-        id: "cus_test_" + Math.random().toString(36).substring(2, 10),
-        email,
-        name,
-        created: Math.floor(Date.now() / 1000),
-      }
+      console.warn("🔴🔴🔴 lib/stripe.ts: Using a LIVE Stripe key in DEVELOPMENT. This is dangerous and likely unintended. Stripe will NOT be initialized with a live key in dev.");
+      return null; // Forhindre bruk av live-nøkkel i dev
     }
-
-    if (!stripe) {
-      return {
-        id: "cus_mock_" + Math.random().toString(36).substring(2, 10),
-        email,
-        name,
-        created: Math.floor(Date.now() / 1000),
-      }
-    }
-
-    const customer = await stripe.customers.create({
-      email,
-      name,
-    })
-    return customer
-  } catch (error) {
-    console.error("Error creating Stripe customer:", error)
-    // Return a mock customer in case of error
-    return {
-      id: "cus_mock_error_" + Math.random().toString(36).substring(2, 10),
-      email,
-      name,
-      created: Math.floor(Date.now() / 1000),
-    }
+  } else if (apiKeyFromEnv.startsWith("sk_test_")) {
+    console.log("✅ lib/stripe.ts: Using a TEST Stripe key (sk_test_). This is good for development.");
+  } else {
+    // Viser kun de første og siste tegnene av nøkkelen av sikkerhetshensyn i loggen
+    const maskedDisplayKey = apiKeyFromEnv.length > 14 ? apiKeyFromEnv.substring(0, 7) + "..." + apiKeyFromEnv.substring(apiKeyFromEnv.length - 4) : apiKeyFromEnv;
+    console.warn(`⚠️ lib/stripe.ts: STRIPE_SECRET_KEY ("${maskedDisplayKey}") does not look like a valid Stripe secret key (should start with sk_test_ or sk_live_).`);
+    return null;
   }
-}
 
-// Create a Stripe invoice
-export const createInvoice = async (customerId: string, description: string, amount: number, currency = "nok") => {
   try {
-    logStripeOperation("createInvoice", { customerId, description, amount, currency })
+    const maskedDisplayKey = apiKeyFromEnv.length > 14 ? apiKeyFromEnv.substring(0, 7) + "..." + apiKeyFromEnv.substring(apiKeyFromEnv.length - 4) : apiKeyFromEnv;
+    console.log(`lib/stripe.ts: Attempting to initialize Stripe with API key: ${maskedDisplayKey}`);
 
-    // In development mode or if Stripe is not initialized, mock the invoice creation
-    if (isDevelopment || !stripe) {
-      return {
-        id: "in_test_" + Math.random().toString(36).substring(2, 10),
-        customer: customerId,
-        amount_due: formatAmountForStripe(amount),
-        currency,
-        description,
-        status: "open",
-        due_date: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days from now
-        created: Math.floor(Date.now() / 1000),
-      }
-    }
+    const stripeInstance = new Stripe(apiKeyFromEnv, {
+      apiVersion: "2023-10-16", // Du kan oppdatere denne til nyeste Stripe anbefaler
+      typescript: true, // Bra for type-sikkerhet
+    });
+    console.log("✅ lib/stripe.ts: Stripe initialized successfully.");
+    return stripeInstance;
+  } catch (error) {
+    console.error("❌ lib/stripe.ts: Failed to initialize Stripe with API key. Error:", error);
+    return null;
+  }
+};
 
-    // Create an invoice item
-    const invoiceItem = await stripe.invoiceItems.create({
-      customer: customerId,
+// Initialiser Stripe-instansen én gang
+export const stripe = getStripeInstance();
+
+// --- Hjelpefunksjoner ---
+const logStripeOperation = (operation: string, ...args: any[]) => {
+  if (isDevelopment) { // Logg kun i utvikling
+    console.log(`🔄 lib/stripe.ts: Stripe Operation - ${operation}:`, ...args);
+  }
+};
+
+export const formatAmountForStripe = (amount: number): number => {
+  return Math.round(amount * 100); // Konverterer NOK til øre
+};
+
+export const formatAmountFromStripe = (amount: number): number => {
+  return amount / 100; // Konverterer øre til NOK
+};
+
+// --- Stripe API-kall funksjoner ---
+
+export const createCustomer = async (email: string, name?: string, metadata?: Stripe.MetadataParam) => {
+  logStripeOperation("createCustomer - Start", { email, name, metadata });
+  console.log("--- DEBUG: lib/stripe.ts -> createCustomer ---");
+  console.log("Is 'stripe' object initialized here?", stripe ? "YES" : "NO - Stripe key likely missing/invalid in env!");
+
+  if (!stripe) {
+    console.warn("⚠️ lib/stripe.ts: Stripe instance is null in createCustomer. Returning MOCK customer.");
+    return {
+      id: "cus_mock_STRIPE_NULL_" + Date.now().toString(36) + Math.random().toString(36).substring(2),
+      email,
+      name,
+      metadata,
+      object: 'customer' as const, // Legg til object type for bedre type-matching
+      created: Math.floor(Date.now() / 1000),
+      error: true, // Indikerer at dette er en mock pga. feil
+      message: "Stripe not initialized (null instance), returning mock customer."
+    };
+  }
+
+  try {
+    console.log(`lib/stripe.ts: Attempting REAL Stripe API call: customers.create for email: ${email}`);
+    const customerParams: Stripe.CustomerCreateParams = { email };
+    if (name) customerParams.name = name;
+    if (metadata) customerParams.metadata = metadata;
+
+    const customer = await stripe.customers.create(customerParams);
+    console.log("✅ lib/stripe.ts: Stripe customer created successfully via API. ID:", customer.id);
+    return customer;
+  } catch (error: any) {
+    console.error("❌ lib/stripe.ts: Error calling Stripe API (customers.create):", error);
+    return {
+      id: "cus_mock_API_ERROR_" + Date.now().toString(36) + Math.random().toString(36).substring(2),
+      email,
+      name,
+      metadata,
+      object: 'customer' as const,
+      created: Math.floor(Date.now() / 1000),
+      error: true,
+      message: error.message || "Unknown error during Stripe API call to create customer"
+    };
+  }
+};
+
+export const createPaymentIntent = async (amount: number, currency = "nok", customerId?: string) => {
+  logStripeOperation("createPaymentIntent - Start", { amount, currency, customerId });
+  console.log("--- DEBUG: lib/stripe.ts -> createPaymentIntent ---");
+  console.log("Is 'stripe' object initialized here?", stripe ? "YES" : "NO - Stripe key likely missing/invalid in env!");
+
+  if (!stripe) {
+    console.warn("⚠️ lib/stripe.ts: Stripe instance is null in createPaymentIntent. Returning MOCK Payment Intent.");
+    const mockClientSecret = "pi_mock_secret_STRIPE_NULL_" + Date.now().toString(36) + Math.random().toString(36).substring(2);
+    return {
+      id: "pi_mock_STRIPE_NULL_" + Date.now().toString(36) + Math.random().toString(36).substring(2),
       amount: formatAmountForStripe(amount),
       currency,
-      description,
-    })
-
-    // Create an invoice from the invoice item
-    const invoice = await stripe.invoices.create({
+      client_secret: mockClientSecret,
       customer: customerId,
-      auto_advance: true, // Auto-finalize the invoice
-      collection_method: "send_invoice",
-      days_until_due: 30,
-    })
+      status: 'requires_payment_method' as Stripe.PaymentIntent.Status,
+      object: 'payment_intent' as const,
+      error: true,
+      message: "Stripe not initialized (null instance), returning mock payment intent."
+    };
+  }
 
-    // Finalize the invoice
-    const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id)
+  try {
+    console.log(`lib/stripe.ts: Attempting REAL Stripe API call: paymentIntents.create. Amount: ${amount}, Currency: ${currency}, CustomerID: ${customerId || 'None'}`);
+    const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
+      amount: formatAmountForStripe(amount),
+      currency,
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    };
 
-    // Send the invoice
-    await stripe.invoices.sendInvoice(finalizedInvoice.id)
+    if (customerId) {
+      paymentIntentParams.customer = customerId;
+    }
 
-    return finalizedInvoice
-  } catch (error) {
-    console.error("Error creating Stripe invoice:", error)
-    // Return a mock invoice in case of error
+    const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams);
+    console.log("✅ lib/stripe.ts: REAL Stripe Payment Intent created. Client Secret starts with:", paymentIntent.client_secret?.substring(0,15) + "...");
+    return paymentIntent;
+  } catch (error: any) {
+    console.error("❌ lib/stripe.ts: Error calling Stripe API (paymentIntents.create):", error);
+    const mockClientSecret = "pi_mock_secret_API_ERROR_" + Date.now().toString(36) + Math.random().toString(36).substring(2);
     return {
-      id: "in_mock_error_" + Math.random().toString(36).substring(2, 10),
+      id: "pi_mock_API_ERROR_" + Date.now().toString(36) + Math.random().toString(36).substring(2),
+      amount: formatAmountForStripe(amount),
+      currency,
+      client_secret: mockClientSecret,
+      customer: customerId,
+      status: 'requires_payment_method' as Stripe.PaymentIntent.Status,
+      object: 'payment_intent' as const,
+      error: true,
+      message: error.message || "Unknown error during Stripe API call to create payment intent"
+    };
+  }
+};
+
+
+// --- Dine andre Stripe-hjelpefunksjoner ---
+// Du bør gå gjennom disse og legge til lignende `if (!stripe)` sjekker og logging
+// hvis du vil at de skal håndtere manglende Stripe-initialisering grasiøst
+// eller alltid prøve ekte kall hvis `stripe` er tilgjengelig.
+
+export const createInvoice = async (customerId: string, description: string, amount: number, currency = "nok") => {
+  logStripeOperation("createInvoice - Start", { customerId, description, amount, currency });
+  console.log("--- DEBUG: lib/stripe.ts -> createInvoice --- 'stripe' initialized?", stripe ? "YES" : "NO");
+  if (!stripe) {
+    console.warn("⚠️ lib/stripe.ts: Stripe instance is null in createInvoice. Returning MOCK invoice.");
+    return {
+      id: "in_mock_STRIPE_NULL_" + Date.now().toString(36),
       customer: customerId,
       amount_due: formatAmountForStripe(amount),
       currency,
@@ -145,215 +185,159 @@ export const createInvoice = async (customerId: string, description: string, amo
       status: "open",
       due_date: Math.floor(Date.now() / 1000) + 86400 * 30,
       created: Math.floor(Date.now() / 1000),
-    }
+      error: true, message: "Stripe not initialized"
+    };
   }
-}
-
-// Get all invoices for a customer
-export const getCustomerInvoices = async (customerId: string) => {
   try {
-    logStripeOperation("getCustomerInvoices", { customerId })
-
-    // If Stripe is not initialized or we're in development, return mock data
-    if (!stripe || isDevelopment) {
-      console.log("⚠️ Using mock data for customer invoices")
-      return [
-        {
-          id: "in_mock_1",
-          number: "MOCK001",
-          amount_due: 10000, // 100.00 in cents
-          currency: "nok",
-          status: "open",
-          due_date: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days from now
-          hosted_invoice_url: "#",
-          created: Math.floor(Date.now() / 1000) - 86400, // 1 day ago
-        },
-        {
-          id: "in_mock_2",
-          number: "MOCK002",
-          amount_due: 25000, // 250.00 in cents
-          currency: "nok",
-          status: "paid",
-          due_date: Math.floor(Date.now() / 1000) + 86400 * 15, // 15 days from now
-          hosted_invoice_url: "#",
-          created: Math.floor(Date.now() / 1000) - 86400 * 7, // 7 days ago
-        },
-      ]
-    }
-
-    // Use real Stripe API calls
-    const invoices = await stripe.invoices.list({
-      customer: customerId,
-      limit: 100,
-    })
-    return invoices.data
-  } catch (error) {
-    console.error("Error fetching customer invoices:", error)
-    // Return mock data in case of error
-    return [
-      {
-        id: "in_mock_error_1",
-        number: "ERROR001",
-        amount_due: 10000,
-        currency: "nok",
-        status: "open",
-        due_date: Math.floor(Date.now() / 1000) + 86400 * 30,
-        hosted_invoice_url: "#",
-        created: Math.floor(Date.now() / 1000) - 86400,
-      },
-    ]
-  }
-}
-
-// Create a payment intent
-export const createPaymentIntent = async (amount: number, currency = "nok", customerId?: string) => {
-  try {
-    logStripeOperation("createPaymentIntent", { amount, currency, customerId })
-
-    // In development mode or if Stripe is not initialized, mock the payment intent
-    if (isDevelopment || !stripe) {
-      return {
-        id: "pi_test_" + Math.random().toString(36).substring(2, 10),
-        amount: formatAmountForStripe(amount),
-        currency,
-        client_secret: "pi_test_secret_" + Math.random().toString(36).substring(2, 15),
-        customer: customerId,
-      }
-    }
-
-    const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
-      amount: formatAmountForStripe(amount),
-      currency,
-      automatic_payment_methods: {
-        enabled: true,
-      },
-    }
-
-    if (customerId) {
-      paymentIntentParams.customer = customerId
-    }
-
-    const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams)
-    return paymentIntent
-  } catch (error) {
-    console.error("Error creating payment intent:", error)
-    // Return a mock payment intent in case of error
-    return {
-      id: "pi_mock_error_" + Math.random().toString(36).substring(2, 10),
-      amount: formatAmountForStripe(amount),
-      currency,
-      client_secret: "pi_mock_error_secret_" + Math.random().toString(36).substring(2, 15),
-      customer: customerId,
-    }
-  }
-}
-
-// Pay an invoice
-export const payInvoice = async (invoiceId: string) => {
-  try {
-    logStripeOperation("payInvoice", { invoiceId })
-
-    // In development mode or if Stripe is not initialized, mock the invoice payment
-    if (isDevelopment || !stripe) {
-      return {
-        id: invoiceId,
-        status: "paid",
-        paid: true,
-        amount_paid: 10000, // Example amount
-        currency: "nok",
-      }
-    }
-
-    const invoice = await stripe.invoices.pay(invoiceId)
-    return invoice
-  } catch (error) {
-    console.error("Error paying invoice:", error)
-    // Return a mock paid invoice in case of error
-    return {
-      id: invoiceId,
-      status: "paid",
-      paid: true,
-      amount_paid: 10000,
-      currency: "nok",
-    }
-  }
-}
-
-// Create a test invoice (for development only)
-export const createTestInvoice = async (customerId: string) => {
-  // Only allow this in development mode
-  if (!isDevelopment) {
-    throw new Error("Test invoices can only be created in development mode")
-  }
-
-  if (!customerId) {
-    throw new Error("Customer ID is required to create a test invoice")
-  }
-
-  try {
-    logStripeOperation("createTestInvoice", { customerId })
-
-    // Generate a random amount between 100 and 1000 NOK
-    const amount = Math.floor(Math.random() * 900) + 100
-
-    // In development mode or if Stripe is not initialized, return a mock invoice
-    if (isDevelopment || !stripe) {
-      return {
-        id: "in_test_" + Math.random().toString(36).substring(2, 10),
-        number: "TEST" + Math.floor(Math.random() * 10000),
-        customer: customerId,
-        amount_due: formatAmountForStripe(amount),
-        currency: "nok",
-        description: "Test Invoice - Development Only",
-        status: "open",
-        due_date: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days from now
-        created: Math.floor(Date.now() / 1000),
-      }
-    }
-
-    // The code below will only run if isDevelopment is false, which won't happen due to the check at the beginning
-    // But we'll keep it for completeness
-
-    // Create an invoice item
+    console.log(`lib/stripe.ts: Attempting REAL Stripe API call for createInvoice. Customer: ${customerId}`);
     const invoiceItem = await stripe.invoiceItems.create({
       customer: customerId,
       amount: formatAmountForStripe(amount),
-      currency: "nok",
-      description: "Test Invoice - Development Only",
-    })
-
-    logStripeOperation("invoiceItem created", invoiceItem)
-
-    // Create an invoice from the invoice item
+      currency,
+      description,
+    });
     const invoice = await stripe.invoices.create({
       customer: customerId,
       auto_advance: true,
       collection_method: "send_invoice",
       days_until_due: 30,
-    })
-
-    logStripeOperation("invoice created", invoice)
-
-    // Finalize the invoice
-    const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id)
-
-    logStripeOperation("invoice finalized", finalizedInvoice)
-
-    return finalizedInvoice
-  } catch (error) {
-    console.error("Error creating test invoice:", error)
-    // Return a mock invoice in case of error
+    });
+    const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
+    await stripe.invoices.sendInvoice(finalizedInvoice.id);
+    console.log("✅ lib/stripe.ts: REAL Stripe Invoice created and sent. ID:", finalizedInvoice.id);
+    return finalizedInvoice;
+  } catch (error: any) {
+    console.error("❌ lib/stripe.ts: Error creating REAL Stripe invoice:", error);
     return {
-      id: "in_mock_error_" + Math.random().toString(36).substring(2, 10),
-      number: "ERROR" + Math.floor(Math.random() * 10000),
+      id: "in_mock_API_ERROR_" + Date.now().toString(36),
       customer: customerId,
-      amount_due: formatAmountForStripe(Math.floor(Math.random() * 900) + 100),
-      currency: "nok",
-      description: "Test Invoice - Development Only",
+      amount_due: formatAmountForStripe(amount),
+      currency,
+      description,
       status: "open",
       due_date: Math.floor(Date.now() / 1000) + 86400 * 30,
       created: Math.floor(Date.now() / 1000),
-    }
+      error: true, message: error.message || "Unknown API error creating invoice"
+    };
   }
-}
+};
 
+export const getCustomerInvoices = async (customerId: string) => {
+  logStripeOperation("getCustomerInvoices - Start", { customerId });
+  console.log("--- DEBUG: lib/stripe.ts -> getCustomerInvoices --- 'stripe' initialized?", stripe ? "YES" : "NO");
+  if (!stripe) {
+    console.warn("⚠️ lib/stripe.ts: Stripe instance is null in getCustomerInvoices. Returning MOCK invoices.");
+    return [
+      {
+        id: "in_mock_STRIPE_NULL_cust_inv", customer: customerId, amount_due: 10000, currency: "nok", status: "open",
+        due_date: Math.floor(Date.now() / 1000) + 86400 * 30, hosted_invoice_url: "#", created: Math.floor(Date.now() / 1000) - 86400,
+        error: true, message: "Stripe not initialized"
+      }
+    ];
+  }
+  try {
+    console.log(`lib/stripe.ts: Attempting REAL Stripe API call for getCustomerInvoices. Customer: ${customerId}`);
+    const invoices = await stripe.invoices.list({ customer: customerId, limit: 100 });
+    console.log(`✅ lib/stripe.ts: Fetched ${invoices.data.length} REAL Stripe Invoices for customer.`);
+    return invoices.data;
+  } catch (error: any) {
+    console.error("❌ lib/stripe.ts: Error fetching REAL customer invoices:", error);
+    return [
+      {
+        id: "in_mock_API_ERROR_cust_inv", customer: customerId, amount_due: 10000, currency: "nok", status: "open",
+        due_date: Math.floor(Date.now() / 1000) + 86400 * 30, hosted_invoice_url: "#", created: Math.floor(Date.now() / 1000) - 86400,
+        error: true, message: error.message || "Unknown API error fetching invoices"
+      }
+    ];
+  }
+};
+
+export const payInvoice = async (invoiceId: string) => {
+  logStripeOperation("payInvoice - Start", { invoiceId });
+  console.log("--- DEBUG: lib/stripe.ts -> payInvoice --- 'stripe' initialized?", stripe ? "YES" : "NO");
+  if (!stripe) {
+    console.warn("⚠️ lib/stripe.ts: Stripe instance is null in payInvoice. Returning MOCK payment status.");
+    return {
+      id: invoiceId, status: "paid", paid: true, amount_paid: 10000, currency: "nok",
+      error: true, message: "Stripe not initialized"
+    };
+  }
+  try {
+    console.log(`lib/stripe.ts: Attempting REAL Stripe API call for payInvoice. Invoice ID: ${invoiceId}`);
+    const invoice = await stripe.invoices.pay(invoiceId);
+    console.log("✅ lib/stripe.ts: REAL Stripe Invoice paid. Status:", invoice.status);
+    return invoice;
+  } catch (error: any) {
+    console.error("❌ lib/stripe.ts: Error paying REAL Stripe invoice:", error);
+    return {
+      id: invoiceId, status: "open", paid: false, /*amount_paid might not be set*/
+      error: true, message: error.message || "Unknown API error paying invoice"
+    };
+  }
+};
+
+export const createTestInvoice = async (customerId: string) => {
+  logStripeOperation("createTestInvoice - Start", { customerId });
+  console.log("--- DEBUG: lib/stripe.ts -> createTestInvoice --- 'stripe' initialized?", stripe ? "YES" : "NO");
+
+  if (!isDevelopment) {
+    console.error("❌ lib/stripe.ts: createTestInvoice called outside development mode.");
+    throw new Error("Test invoices can only be created in development mode");
+  }
+  if (!customerId) {
+    console.error("❌ lib/stripe.ts: Customer ID is required for createTestInvoice.");
+    throw new Error("Customer ID is required to create a test invoice");
+  }
+  if (!stripe) {
+    console.warn("⚠️ lib/stripe.ts: Stripe instance is null in createTestInvoice. Returning MOCK test invoice.");
+    const amount = Math.floor(Math.random() * 900) + 100;
+    return {
+      id: "in_test_mock_STRIPE_NULL_" + Date.now().toString(36),
+      number: "TEST_MOCK" + Math.floor(Math.random() * 10000),
+      customer: customerId,
+      amount_due: formatAmountForStripe(amount),
+      currency: "nok",
+      description: "Mock Test Invoice - Stripe Not Initialized",
+      status: "open",
+      due_date: Math.floor(Date.now() / 1000) + 86400 * 30,
+      created: Math.floor(Date.now() / 1000),
+      error: true,
+      message: "Stripe not initialized"
+    };
+  }
+  try {
+    console.log(`lib/stripe.ts: Attempting REAL Stripe API call for createTestInvoice. Customer: ${customerId}`);
+    const amount = Math.floor(Math.random() * 900) + 100;
+    const invoiceItem = await stripe.invoiceItems.create({
+      customer: customerId,
+      amount: formatAmountForStripe(amount),
+      currency: "nok",
+      description: "Test Invoice - Development Only (REAL CALL)",
+    });
+    const invoice = await stripe.invoices.create({
+      customer: customerId,
+      auto_advance: true,
+      collection_method: "send_invoice",
+      days_until_due: 30,
+    });
+    const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
+    console.log("✅ lib/stripe.ts: REAL Stripe Test Invoice created. ID:", finalizedInvoice.id);
+    return finalizedInvoice;
+  } catch (error: any) {
+    console.error("❌ lib/stripe.ts: Error creating REAL test invoice:", error);
+    const amount = Math.floor(Math.random() * 900) + 100;
+    return {
+      id: "in_test_mock_API_ERROR_" + Date.now().toString(36),
+      number: "TEST_MOCK_ERROR" + Math.floor(Math.random() * 10000),
+      customer: customerId,
+      amount_due: formatAmountForStripe(amount),
+      currency: "nok",
+      description: "Mock Test Invoice - API Error",
+      status: "open",
+      due_date: Math.floor(Date.now() / 1000) + 86400 * 30,
+      created: Math.floor(Date.now() / 1000),
+      error: true,
+      message: error.message || "Unknown error"
+    };
+  }
+};
