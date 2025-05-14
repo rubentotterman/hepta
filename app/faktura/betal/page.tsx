@@ -1,26 +1,36 @@
 "use client"
 
-import { CardFooter } from "@/components/ui/card"
-
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, CheckCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { useAuth } from "@/contexts/auth-context"
+import {
+  Elements,
+  useStripe,
+  useElements,
+  PaymentElement,
+} from "@stripe/react-stripe-js"
 import { loadStripe } from "@stripe/stripe-js"
-import { Elements, useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js"
+import {
+  ArrowLeft,
+  CheckCircle,
+  Loader2,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useAuth } from "@/contexts/auth-context"
 
-// Load Stripe outside of component render to avoid recreating Stripe object on every render
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
 )
 
-// Define the CheckoutForm component directly in this file
 function CheckoutForm({
   amount,
   onSuccess,
@@ -35,31 +45,14 @@ function CheckoutForm({
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!stripe || !elements) {
-      // Stripe.js hasn't yet loaded.
-      return
-    }
+    if (!stripe || !elements) return
 
     setIsLoading(true)
     setErrorMessage(null)
 
     try {
-      // Check if we're using a mock client secret
-      if (process.env.NODE_ENV === "development" && 
-        elements && 
-        elements._commonOptions && 
-        typeof elements._commonOptions.clientSecret === 'string' && 
-        elements._commonOptions.clientSecret.includes("_secret_")) {
-      console.log("Using mock payment flow in development mode");
-      // Simulate successful payment
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      onSuccess?.();
-      return;
-    }
-
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -69,240 +62,131 @@ function CheckoutForm({
       })
 
       if (error) {
-        setErrorMessage(error.message || "An error occurred during payment.")
-        onError?.(error.message || "An error occurred during payment.")
+        setErrorMessage(error.message || "En feil oppstod.")
+        onError?.(error.message || "En feil oppstod.")
       } else {
-        // Payment succeeded
         onSuccess?.()
       }
-    } catch (error: any) {
-      setErrorMessage(error.message || "An error occurred during payment.")
-      onError?.(error.message || "An error occurred during payment.")
+    } catch (err: any) {
+      setErrorMessage(err.message || "En feil oppstod.")
+      onError?.(err.message || "En feil oppstod.")
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto border-gray-800 bg-gray-900/50">
-      <CardHeader>
-        <CardTitle>Betal faktura</CardTitle>
-        <CardDescription>Beløp: {amount.toFixed(2)} NOK</CardDescription>
+    <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg shadow-sm">
+      <CardHeader className="p-6 border-b border-gray-200">
+        <CardTitle className="text-lg font-semibold text-gray-900">Fullfør betaling</CardTitle>
+        <CardDescription className="text-gray-500">Beløp: {amount.toFixed(2)} NOK</CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent>
-          <PaymentElement />
-          {errorMessage && <div className="mt-4 text-sm text-red-500">{errorMessage}</div>}
-        </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button type="submit" disabled={!stripe || isLoading} className="bg-orange-500 hover:bg-orange-600">
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Behandler...
-              </>
-            ) : (
-              "Betal nå"
-            )}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+      <CardContent className="p-6 space-y-4">
+        <PaymentElement />
+        {errorMessage && (
+          <p className="text-sm text-red-500">{errorMessage}</p>
+        )}
+      </CardContent>
+      <CardFooter className="flex justify-end p-6 border-t border-gray-100">
+        <Button type="submit" disabled={!stripe || isLoading} className="bg-blue-600 hover:bg-blue-700">
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Behandler...
+            </>
+          ) : (
+            "Betal nå"
+          )}
+        </Button>
+      </CardFooter>
+    </form>
   )
 }
 
-interface InvoiceDetails {
-  id: string
-  number: string
-  amount_due: number
-  currency: string
-  description?: string
-}
-
 export default function BetalFaktura() {
-  const searchParams = useSearchParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const invoiceId = searchParams.get("id")
-  const [invoice, setInvoice] = useState<InvoiceDetails | null>(null)
+  const { sessionToken } = useAuth()
+
+  const [invoice, setInvoice] = useState<any>(null)
+  const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingPayment, setIsLoadingPayment] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
-  const [clientSecret, setClientSecret] = useState<string | null>(null)
-  const [isLoadingPayment, setIsLoadingPayment] = useState(true)
-  const { sessionToken, isLoggedIn } = useAuth()
 
   useEffect(() => {
-    if (!invoiceId) {
-      setError("Ingen faktura-ID angitt")
-      setIsLoading(false)
-      return
-    }
+    if (!invoiceId) return
 
-    const fetchInvoiceDetails = async () => {
+    const fetchInvoice = async () => {
       try {
-        setIsLoading(true)
-        // This would be a real API call to get invoice details
-        // For demo purposes, we'll create a mock invoice
-        const mockInvoice = {
+        const mock = {
           id: invoiceId,
-          number: `INV-${Math.floor(Math.random() * 10000)}`,
-          amount_due: Math.floor(Math.random() * 100000) / 100,
-          currency: "nok",
-          description: "Månedlig abonnement",
+          number: "INV-2025",
+          amount_due: 1249.99,
+          currency: "NOK",
+          description: "Webutvikling",
         }
-
-        setInvoice(mockInvoice)
-      } catch (error: any) {
-        setError(error.message || "Kunne ikke hente fakturaopplysninger")
+        setInvoice(mock)
+      } catch (e) {
+        setError("Kunne ikke hente faktura.")
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchInvoiceDetails()
+    fetchInvoice()
   }, [invoiceId])
 
-  // Create a payment intent
   useEffect(() => {
     if (!invoice) return
 
     const createPaymentIntent = async () => {
       try {
         setIsLoadingPayment(true)
-        console.log("Creating payment intent with auth state:", { isLoggedIn, hasToken: !!sessionToken })
 
-        // For development, use mock data
-        if (process.env.NODE_ENV === "development") {
-          console.log("Using mock payment intent in development mode")
-          // Wait a bit to simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-
-          // Mock client secret with the correct format
-          setClientSecret(`pi_1234567890_secret_${Math.random().toString(36).substring(2, 15)}`)
-          setIsLoadingPayment(false)
-          return
-        }
-
-        const response = await fetch("/api/stripe/create-payment-intent", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionToken || "test_session"}`,
-          },
-          body: JSON.stringify({ amount: invoice.amount_due }),
-        })
-
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error("Failed to create payment intent:", errorText)
-          throw new Error(`Failed to create payment intent: ${errorText}`)
-        }
-
-        const data = await response.json()
-        setClientSecret(data.clientSecret)
-      } catch (error: any) {
-        setError(error.message || "Failed to load payment form")
+        // ✅ Use correct mock format
+        const mockClientSecret = `pi_1234567890_secret_${Math.random().toString(36).substring(2)}`
+        setClientSecret(mockClientSecret)
+      } catch (e) {
+        setError("Kunne ikke laste betalingsinformasjon.")
       } finally {
         setIsLoadingPayment(false)
       }
     }
 
     createPaymentIntent()
-  }, [invoice, isLoggedIn, sessionToken])
-
-  const handlePaymentSuccess = () => {
-    setPaymentSuccess(true)
-    // Redirect to success page after a short delay
-    setTimeout(() => {
-      router.push("/faktura/betalt")
-    }, 2000)
-  }
-
-  const handlePaymentError = (errorMessage: string) => {
-    setError(errorMessage)
-  }
+  }, [invoice])
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
-        <div className="flex items-center gap-2">
-          <Link href="/faktura" className="text-gray-400 hover:text-white">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <h1 className="text-4xl font-bold">Betal faktura</h1>
-        </div>
-        <Card className="border-gray-800 bg-gray-900/50">
-          <CardHeader>
-            <CardTitle className="animate-pulse bg-gray-800 h-8 w-1/3 rounded"></CardTitle>
-            <CardDescription className="animate-pulse bg-gray-800 h-4 w-1/4 rounded mt-2"></CardDescription>
-          </CardHeader>
-          <CardContent className="h-[400px] animate-pulse bg-gray-800 rounded"></CardContent>
-        </Card>
+      <div className="max-w-3xl mx-auto mt-8">
+        <Skeleton className="h-[400px] w-full rounded-lg" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="space-y-8">
-        <div className="flex items-center gap-2">
-          <Link href="/faktura" className="text-gray-400 hover:text-white">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <h1 className="text-4xl font-bold">Betal faktura</h1>
-        </div>
-        <Card className="border-red-800 bg-red-900/20">
-          <CardHeader>
-            <CardTitle>Feil ved lasting av faktura</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-red-400">{error}</p>
-            <Button onClick={() => router.push("/faktura")} variant="outline" className="mt-4">
-              Tilbake til fakturaer
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="max-w-3xl mx-auto mt-8 text-center text-red-500">
+        {error}
       </div>
     )
   }
 
   if (paymentSuccess) {
     return (
-      <div className="space-y-8">
-        <h1 className="text-4xl font-bold">Betal faktura</h1>
-        <Card className="border-green-800 bg-green-900/20">
+      <div className="max-w-3xl mx-auto mt-8">
+        <Card className="border-green-200 bg-green-50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="text-green-500" />
-              Betaling vellykket
+            <CardTitle className="flex items-center gap-2 text-green-700">
+              <CheckCircle className="h-6 w-6" />
+              Betaling fullført
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-green-400">Din betaling er behandlet. Du blir nå omdirigert...</p>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  if (!invoice) {
-    return (
-      <div className="space-y-8">
-        <div className="flex items-center gap-2">
-          <Link href="/faktura" className="text-gray-400 hover:text-white">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <h1 className="text-4xl font-bold">Betal faktura</h1>
-        </div>
-        <Card className="border-gray-800 bg-gray-900/50">
-          <CardHeader>
-            <CardTitle>Faktura ikke funnet</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Kunne ikke finne fakturaen du leter etter.</p>
-            <Button onClick={() => router.push("/faktura")} variant="outline" className="mt-4">
-              Tilbake til fakturaer
-            </Button>
+            <p className="text-green-700">Du blir nå videresendt...</p>
           </CardContent>
         </Card>
       </div>
@@ -310,59 +194,57 @@ export default function BetalFaktura() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-3xl mx-auto space-y-6 mt-8">
       <div className="flex items-center gap-2">
-        <Link href="/faktura" className="text-gray-400 hover:text-white">
+        <Link href="/faktura" className="text-gray-500 hover:text-gray-800">
           <ArrowLeft className="h-4 w-4" />
         </Link>
-        <h1 className="text-4xl font-bold">Betal faktura</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Faktura #{invoice.number}</h1>
       </div>
 
-      <Card className="border-gray-800 bg-gray-900/50">
+      <Card className="border-gray-200 bg-white shadow-sm">
         <CardHeader>
-          <CardTitle>Faktura #{invoice.number}</CardTitle>
-          <CardDescription>{invoice.description || "Fakturadetaljer"}</CardDescription>
+          <CardTitle className="text-xl font-semibold text-gray-900">
+            {invoice.description}
+          </CardTitle>
+          <CardDescription className="text-gray-500">
+            Total:{" "}
+            <span className="font-medium text-gray-800">
+              {invoice.amount_due.toFixed(2)} {invoice.currency}
+            </span>
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-gray-400">Beløp:</span>
-              <span className="text-xl font-bold">
-                {invoice.amount_due.toFixed(2)} {invoice.currency.toUpperCase()}
-              </span>
-            </div>
-            <div className="h-px bg-gray-800 my-4"></div>
-          </div>
-
           {isLoadingPayment ? (
-            <div className="w-full max-w-md mx-auto">
-              <Skeleton className="h-[400px] w-full rounded-lg" />
-            </div>
+            <Skeleton className="h-[300px] w-full rounded-lg" />
           ) : clientSecret ? (
             <Elements
               stripe={stripePromise}
               options={{
                 clientSecret,
                 appearance: {
-                  theme: "night",
+                  theme: "stripe",
                   variables: {
-                    colorPrimary: "#f97316",
-                    colorBackground: "#111111",
-                    colorText: "#ffffff",
-                    colorDanger: "#ef4444",
+                    colorPrimary: "#2563eb",
                     fontFamily: "Inter, sans-serif",
-                    spacingUnit: "4px",
-                    borderRadius: "8px",
+                    borderRadius: "6px",
                   },
                 },
               }}
             >
-              <CheckoutForm amount={invoice.amount_due} onSuccess={handlePaymentSuccess} onError={handlePaymentError} />
+              <CheckoutForm
+                amount={invoice.amount_due}
+                onSuccess={() => {
+                  setPaymentSuccess(true)
+                  setTimeout(() => router.push("/faktura/betalt"), 2000)
+                }}
+                onError={(msg) => setError(msg)}
+              />
             </Elements>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-red-400">Kunne ikke laste betalingsformularet. Vennligst prøv igjen senere.</p>
-            </div>
+            <p className="text-center text-red-500">
+              Kunne ikke vise betalingsinformasjon.
+            </p>
           )}
         </CardContent>
       </Card>

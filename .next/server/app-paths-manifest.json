@@ -1,5 +1,6 @@
 {
   "/page": "app/page.js",
-  "/tjenester/page": "app/tjenester/page.js",
-  "/contact/page": "app/contact/page.js"
+  "/dashboard/page": "app/dashboard/page.js",
+  "/faktura/betal/page": "app/faktura/betal/page.js",
+  "/api/stripe/create-customer-for-user/route": "app/api/stripe/create-customer-for-user/route.js"
 }
