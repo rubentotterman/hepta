@@ -1,7 +1,3 @@
 {
-  "/page": "app/page.js",
-  "/api/stripe/webhook/route": "app/api/stripe/webhook/route.js",
-  "/api/stripe/create-customer-for-user/route": "app/api/stripe/create-customer-for-user/route.js",
-  "/faktura/page": "app/faktura/page.js",
-  "/faktura/betal/page": "app/faktura/betal/page.js"
+  "/page": "app/page.js"
 }
