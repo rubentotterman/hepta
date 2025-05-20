@@ -28,6 +28,7 @@ const formSpecificGlobalStyles = `
 
 interface FormData {
   name: string; email: string; message: string; firstName: string; lastName: string; company: string; website: string; phone: string;
+  noWebsite: boolean;
 }
 interface Step {
   id: string; formField: keyof FormData | (keyof FormData)[]; label: string; placeholder: string | string[]; type?: string; isRequired: boolean; multiline?: boolean; description?: string;
@@ -36,7 +37,7 @@ interface Step {
 export function ContactForm() {
   const [formData, setFormData] = useState<FormData>({
     name: "", email: "", message: "Vi bruker referanser, sosiale medier og direktemarkedsføring for å nå nye kunder.",
-    firstName: "", lastName: "", company: "", website: "", phone: ""
+    firstName: "", lastName: "", company: "", website: "", phone: "", noWebsite: false
   });
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,6 +85,18 @@ export function ContactForm() {
     }
   };
 
+  const handleNoWebsiteToggle = () => {
+    setFormData(prev => {
+      const noWebsite = !prev.noWebsite;
+      return {
+        ...prev,
+        noWebsite,
+        website: noWebsite ? "" : prev.website
+      };
+    });
+    setError("");
+  };
+
   const validateCurrentStep = (): boolean => {
     const currentStepData = steps[activeStep];
     let stepError = "";
@@ -105,7 +118,7 @@ export function ContactForm() {
         stepError = "Vennligst skriv inn en gyldig e-postadresse.";
         fieldToFocus = emailRef.current;
       }
-    } else if (currentStepData.id === "website" && formData.website && !isValidUrl(formData.website)) {
+    } else if (currentStepData.id === "website" && !formData.noWebsite && formData.website && !isValidUrl(formData.website)) {
       stepError = "Vennligst skriv inn en gyldig nettside-URL (inkluder http:// eller https://).";
       fieldToFocus = inputRefs.current[activeStep];
     } else if (currentStepData.isRequired && !Array.isArray(currentStepData.formField) && !formData[currentStepData.formField as keyof FormData].trim()) {
@@ -181,11 +194,32 @@ export function ContactForm() {
 
     setError("");
 
-    console.log("Submitting form data:", formData);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsSuccess(true);
+      console.log("Sending form data:", {
+        ...formData,
+        website: formData.noWebsite ? "Har ikke nettside" : formData.website
+      });
 
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          // If noWebsite is true, add a note in the website field
+          website: formData.noWebsite ? "Har ikke nettside" : formData.website
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsSuccess(true);
+      } else {
+        console.error("API error:", data);
+        throw new Error(data.error || data.message || 'Failed to send form');
+      }
     } catch (err) {
       console.error("Submission error:", err);
       setError("Noe gikk galt under innsending. Prøv igjen.");
@@ -270,6 +304,46 @@ export function ContactForm() {
                                   <div className="space-y-3 sm:space-y-4">
                                     <div className="relative"><div className="input-label">E-post{step.isRequired ? '*' : ''}</div><input ref={emailRef} id="email" name="email" type="email" value={formData.email} onChange={handleChange} onKeyDown={handleKeyDown} placeholder={Array.isArray(step.placeholder) ? step.placeholder[0] : step.placeholder} required={step.isRequired} className="w-full bg-transparent border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-white h-10 sm:h-12 text-base sm:text-lg pb-1 placeholder-gray-500" /><div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-700"><div className="h-full bg-white transition-all duration-300" style={{ width: formData.email ? `${Math.min(100, formData.email.length * 5)}%` : '0%' }} /></div></div>
                                     <div className="relative"><div className="input-label">Telefon (valgfritt)</div><input ref={phoneRef} id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} onKeyDown={handleKeyDown} placeholder={Array.isArray(step.placeholder) ? step.placeholder[1] : undefined} className="w-full bg-transparent border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-white h-10 sm:h-12 text-base sm:text-lg pb-1 placeholder-gray-500" /><div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-700"><div className="h-full bg-white transition-all duration-300" style={{ width: formData.phone ? `${Math.min(100, formData.phone.length * 5)}%` : '0%' }} /></div></div>
+                                  </div>
+                              ) : step.id === "website" ? (
+                                  <div className="space-y-4">
+                                    <div className="relative">
+                                      <input
+                                          ref={el => inputRefs.current[index] = el}
+                                          id={step.id}
+                                          name={Array.isArray(step.formField) ? step.formField[0] : step.formField as keyof FormData}
+                                          type={step.type || "text"}
+                                          value={formData[Array.isArray(step.formField) ? step.formField[0] : step.formField as keyof FormData]}
+                                          onChange={handleChange}
+                                          placeholder={step.placeholder as string}
+                                          required={step.isRequired}
+                                          onKeyDown={handleKeyDown}
+                                          className={`w-full bg-transparent border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-white h-10 sm:h-12 text-base sm:text-lg pb-1 placeholder-gray-500 ${formData.noWebsite ? 'opacity-50' : ''}`}
+                                          disabled={formData.noWebsite}
+                                      />
+                                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-700">
+                                        <div className="h-full bg-white transition-all duration-300" style={{ width: formData[Array.isArray(step.formField) ? step.formField[0] : step.formField as keyof FormData] ? `${Math.min(100, formData[Array.isArray(step.formField) ? step.formField[0] : step.formField as keyof FormData].length * 5)}%` : '0%' }} />
+                                      </div>
+                                    </div>
+
+                                    <div className="mt-4">
+                                      <label className="flex items-center cursor-pointer group">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.noWebsite}
+                                            onChange={handleNoWebsiteToggle}
+                                            className="sr-only"
+                                        />
+                                        <span className={`w-5 h-5 mr-2 flex items-center justify-center border ${formData.noWebsite ? 'bg-blue-600 border-blue-600' : 'border-gray-500 group-hover:border-gray-400'}`}>
+                                          {formData.noWebsite && (
+                                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                              </svg>
+                                          )}
+                                        </span>
+                                        <span className="text-gray-300 group-hover:text-white">Jeg har ikke nettside enda</span>
+                                      </label>
+                                    </div>
                                   </div>
                               ) : step.multiline ? (
                                   <div className="relative"><textarea ref={el => inputRefs.current[index] = el} id={step.id} name={Array.isArray(step.formField) ? step.formField[0] : step.formField as keyof FormData} value={formData[Array.isArray(step.formField) ? step.formField[0] : step.formField as keyof FormData]} onChange={handleChange} placeholder={step.placeholder as string} rows={3} required={step.isRequired} onKeyDown={handleKeyDown} className="w-full bg-transparent border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-white text-base sm:text-lg pb-1 placeholder-gray-500 min-h-[80px] sm:min-h-[100px] resize-y" /><div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-700"><div className="h-full bg-white transition-all duration-300" style={{ width: formData[Array.isArray(step.formField) ? step.formField[0] : step.formField as keyof FormData] ? `${Math.min(100, formData[Array.isArray(step.formField) ? step.formField[0] : step.formField as keyof FormData].length / 1.5)}%` : '0%' }} /></div></div>
