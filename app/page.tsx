@@ -36,27 +36,27 @@ export default function Home() {
 
   const services = [
     {
-      title: "Innholdsproduksjon",
-      content: "Innhold som skaper inntrykk, salg eller engasjement...",
-      slug: "Innholdsproduksjon",
+      title: "Ai og automasjon",
+      content: "Trenger din bedrift raskere prossesser? Utforsk mulighetene AI kan ha i din bedrift.",
+      slug: "AI",
       image: "/creation.jpg",
     },
     {
-      title: "Betalt annonsering",
-      content: "Vi hjelper deg med kampanjer som konverterer...",
-      slug: "Paidads",
+      title: "Videoproduksjon",
+      content: "Vi kan bistå med redigering, eller videoproduksjon ved behov",
+      slug: "Videoproduksjon",
       image: "/paid.jpg",
     },
     {
-      title: "AI",
-      content: "Vi hjelper med å implementere AI-løsninger...",
-      slug: "AI",
+      title: "Digital markedsføring",
+      content: "Behov for markedsføring? Vi bruker data for å treffe riktig målgruppe",
+      slug: "Digitalmarkedsforing",
       image: "/ai.jpg",
     },
     {
-      title: "Rådgivning",
-      content: "Trenger hjelp for å komme i gang? Vi hjelper dere...",
-      slug: "Radgivning",
+      title: "Utvikling",
+      content: "Behov for tekniske løsninger? Vi har bred erfaring i utvikling av alt fra Web løsninger, infrastruktur og mikrokontrollere",
+      slug: "Utvikling",
       image: "/consulting.jpg",
     },
   ];

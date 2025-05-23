@@ -1,7 +1,7 @@
 {
-  "/tjenester/page": "app/tjenester/page.js",
-  "/api/contact/route": "app/api/contact/route.js",
-  "/om-oss/page": "app/om-oss/page.js",
   "/page": "app/page.js",
+  "/privacy/page": "app/privacy/page.js",
+  "/om-oss/page": "app/om-oss/page.js",
+  "/tjenester/page": "app/tjenester/page.js",
   "/contact/page": "app/contact/page.js"
 }

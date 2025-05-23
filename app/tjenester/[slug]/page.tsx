@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 const services = {
-  Innholdsproduksjon: {
+  videoproduksjon: {
     title: "innholdsproduksjon",
     description: "Innhold som skaper inntrykk, salg eller engasjement. Uansett ditt behov skaper vi innhold til anledningen",
     content: `Teknologi er kjernen i moderne forretningsutvikling. Vårt team av eksperter kombinerer innovativ tenkning med solid teknisk kompetanse for å skape løsninger som gir din virksomhet et konkurransefortrinn.
@@ -19,7 +19,7 @@ const services = {
     
     Vi lager innholdet som folket elsker å dele. Fra reklamefilmer til bedriftsvideoer, vi skaper innhold som engasjerer og konverterer.`,
   },
-  "app-utvikling": {
+  utvikling: {
     title: "App-utvikling",
     description: "Fra idé til lansering, vi skaper brukervennlige og effektive applikasjoner.",
     content: `Vi utvikler mobile og web-applikasjoner som møter dine forretningsbehov og engasjerer brukerne dine. Med fokus på brukeropplevelse og teknisk kvalitet, skaper vi applikasjoner som gir verdi.
@@ -32,7 +32,7 @@ const services = {
     • App-vedlikehold og support`,
   },
   AI: {
-    title: "AI",
+    title: "AI og automasjon",
     description: "Utnytt kraften i kunstig intelligens for å optimalisere din virksomhet.",
     content: `Kunstig intelligens revolusjonerer måten vi jobber på. Vi hjelper deg å implementere AI-løsninger som gir konkurransefortrinn og effektiviserer arbeidsprosesser.
 
@@ -67,7 +67,7 @@ const services = {
     • Intern kommunikasjon
     • Digital PR og omdømmebygging`,
   },
-  Paidads: {
+  Digitalmarkedsforing: {
     title: "Betalt annonsering",
     description: "Vi hjelper deg med kampanjer som konverterer.",
     content: `Betalt annonsering er en effektiv måte å nå ut til målgruppen din på. Vi hjelper deg med å utvikle og implementere annonseringsstrategier som gir resultater.
