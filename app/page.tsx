@@ -39,13 +39,13 @@ export default function Home() {
       title: "Ai og automasjon",
       content: "Trenger din bedrift raskere prossesser? Utforsk mulighetene AI kan ha i din bedrift.",
       slug: "AI",
-      image: "/creation.jpg",
+      image: "/group11.png",
     },
     {
       title: "Videoproduksjon",
       content: "Vi kan bistå med redigering, eller videoproduksjon ved behov",
       slug: "Videoproduksjon",
-      image: "/paid.jpg",
+      image: "/IMG_9003.JPG",
     },
     {
       title: "Digital markedsføring",

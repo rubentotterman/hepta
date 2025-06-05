@@ -54,19 +54,7 @@ export default function OmOss() {
 
             {/* First ImageTextSplitSection (Image on Left) */}
             {/* Apply backgroundColorClass to a wrapper div */}
-            <div className="bg-slate-50 dark:bg-slate-900 py-12 sm:py-16"> {/* Added padding to wrapper */}
-                <div className="container mx-auto"> {/* Optional: Add container for content width control */}
-                    <ImageTextSplitSection
-                        imageSrc={kreativeMiljoImages[0]} // Mapped from images
-                        altText={kreativeMiljoAltText}    // Added alt text
-                        title="Vårt Kreative Miljø"       // Mapped from heading
-                        paragraphs={["Se innsiden av vårt kontor hvor ideer blir til virkelighet. Et dynamisk og inspirerende sted designet for samarbeid og nyskapning, utstyrt med den nyeste teknologien for å drive prosjektene dine fremover."]} // Mapped from text
-                        imageOnLeft={true}                // Mapped from imagePosition="left"
-                        isTextBlack={true}                // Assuming light background needs black text
-                        // enableAutoplay is not a prop of this component
-                    />
-                </div>
-            </div>
+
 
             {/* Second ImageTextSplitSection (Image on Right) */}
             {/* Apply backgroundColorClass to a wrapper div */}

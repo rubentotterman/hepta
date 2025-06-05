@@ -198,7 +198,7 @@ export function ContactFormModal({ isOpen, onClose }: ContactFormModalProps) {
             <div className="pt-4">
               <Button
                 type="submit"
-                className="w-full bg-orange-500 hover:bg-orange-600"
+                className="w-full bg-blue-500 hover:bg-blue-500"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
