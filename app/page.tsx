@@ -110,11 +110,11 @@ export default function Home() {
 
   return (
     <div
-      className={`w-full transition-colors duration-1000 ease-in-out ${
+      className={`w-full transition-colors duration-1000 ease-in-out overflow-x-hidden ${
         shouldPageBeWhite ? `${whitePageBg} ${whitePageFg}` : `${defaultPageBg} ${defaultPageFg}`
       }`}
     >
-      <div className="space-y-32">
+      <div className="space-y-32 overflow-x-hidden">
         {/* HERO SECTION */}
         <section
           className="relative flex flex-col overflow-hidden"
@@ -139,7 +139,7 @@ export default function Home() {
               shouldPageBeWhite ? "to-white dark:to-gray-100" : "to-gray-900 dark:to-black"
             } z-0`}
           />
-          <div className="container mx-auto px-4 relative z-10 flex-grow flex flex-col items-center justify-center py-10 sm:py-16">
+          <div className="container mx-auto px-4 relative z-10 flex-grow flex flex-col items-center justify-center py-10 sm:py-16 max-w-[100vw]">
             <div className="mx-auto max-w-[800px] text-center">
               <h1 className="animate-fade-in bg-gradient-to-br from-white to-gray-400 bg-clip-text text-5xl font-extrabold leading-tight tracking-tight text-transparent sm:text-6xl md:text-7xl">
                 Transform your

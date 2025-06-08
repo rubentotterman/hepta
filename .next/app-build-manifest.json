@@ -11,35 +11,15 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/dashboard/page": [
+    "/tjenester/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/page.js"
+      "static/chunks/app/tjenester/page.js"
     ],
-    "/dashboard/loading": [
+    "/tjenester/[slug]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/loading.js"
-    ],
-    "/faktura/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/faktura/page.js"
-    ],
-    "/faktura/betal/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/faktura/betal/page.js"
-    ],
-    "/faktura/betal/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/faktura/betal/loading.js"
-    ],
-    "/om-oss/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/om-oss/page.js"
+      "static/chunks/app/tjenester/[slug]/page.js"
     ],
     "/contact/page": [
       "static/chunks/webpack.js",

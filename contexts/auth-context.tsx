@@ -8,19 +8,25 @@ import { useRouter } from "next/navigation"
 import type { User, Session } from "@supabase/auth-helpers-nextjs"
 import { getLocalStorage, setLocalStorage, removeLocalStorage } from "@/lib/utils"
 
-// Update the AuthContextType interface to include role
-interface AuthContextType {
-  isLoggedIn: boolean
+export type AuthContextType = {
   user: User | null
   sessionToken: string | null
   userRole: string | null
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   checkAuth: () => Promise<{ isLoggedIn: boolean; user: User | null }>
   createTestSession: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  sessionToken: null,
+  userRole: null,
+  login: async () => {},
+  logout: async () => {},
+  checkAuth: async () => ({ isLoggedIn: false, user: null }),
+  createTestSession: async () => {},
+})
 
 // Add role to the TEST_USER object
 const TEST_USER = {
@@ -47,15 +53,15 @@ const getCookie = (name: string): string | null => {
   return null
 }
 
-export function AuthProvider({
+export const AuthProvider = ({
   children,
-  serverSession,
-}: { children: React.ReactNode; serverSession: Session | null }) {
-  // Start with logged out state
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  serverSession = null,
+}: {
+  children: React.ReactNode;
+  serverSession?: Session | null;
+}) => {
   const [user, setUser] = useState<User | null>(null)
   const [sessionToken, setSessionToken] = useState<string | null>(null)
-  // In the AuthProvider component, add a state for userRole
   const [userRole, setUserRole] = useState<string | null>(null)
   const [supabase] = useState(() => createClientComponentClient())
   const router = useRouter()
@@ -108,7 +114,6 @@ export function AuthProvider({
     if (testSession) {
       try {
         console.log("Found test session:", testSession)
-        setIsLoggedIn(true)
         setUser(testSession.user as User)
         setSessionToken(testSession.token)
         setUserRole(testSession.user.role || "customer") // Set role from test session
@@ -137,7 +142,6 @@ export function AuthProvider({
 
     if (session) {
       console.log("Setting logged in state to true")
-      setIsLoggedIn(true)
       setUser(session.user)
       setSessionToken(session.access_token)
 
@@ -166,7 +170,6 @@ export function AuthProvider({
       ensureStripeCustomer(session.user)
     } else {
       console.log("Setting logged in state to false")
-      setIsLoggedIn(false)
       setUser(null)
       setSessionToken(null)
       setUserRole(null)
@@ -194,7 +197,6 @@ export function AuthProvider({
       console.log("Auth state changed:", { event, session })
       if (session) {
         console.log("Auth state change: User logged in")
-        setIsLoggedIn(true)
         setUser(session.user)
         setSessionToken(session.access_token)
 
@@ -207,7 +209,6 @@ export function AuthProvider({
         // Don't log out if we have a test session
         if (!getLocalStorage("testSession")) {
           console.log("Auth state change: User logged out")
-          setIsLoggedIn(false)
           setUser(null)
           setSessionToken(null)
           removeLocalStorage("sessionToken")
@@ -248,7 +249,6 @@ export function AuthProvider({
     document.cookie = `session=authenticated; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict; Secure`
 
     // Update the auth state
-    setIsLoggedIn(true)
     setUser(TEST_USER as User)
     setSessionToken(token)
     setUserRole("admin") // Set role for test session
@@ -279,7 +279,6 @@ export function AuthProvider({
       console.log("Login successful:", data.session ? "Session exists" : "No session")
 
       if (data.session) {
-        setIsLoggedIn(true)
         setUser(data.session.user)
         setSessionToken(data.session.access_token)
 
@@ -314,22 +313,20 @@ export function AuthProvider({
     await supabase.auth.signOut()
 
     // Reset auth state
-    setIsLoggedIn(false)
     setUser(null)
     setSessionToken(null)
+    setUserRole(null)
 
     // Redirect to home
     router.push("/")
   }
 
-  // Include userRole in the context value
   return (
     <AuthContext.Provider
       value={{
-        isLoggedIn,
         user,
         sessionToken,
-        userRole, // Add this line
+        userRole,
         login,
         logout,
         checkAuth,
@@ -341,7 +338,7 @@ export function AuthProvider({
   )
 }
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext)
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider")

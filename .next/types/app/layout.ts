@@ -1,4 +1,4 @@
-// File: /Users/alexanderamundsen/WebstormProjects/wasd/app/layout.tsx
+// File: /Users/alexanderamundsen/hepta/hepta-3/app/layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

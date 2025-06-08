@@ -10,12 +10,12 @@ const placeholderHeight = "h-[120px] sm:h-[160px] md:h-[200px] lg:h-[280px] xl:h
 const placeholderVisualizeStyle = "border border-dashed border-neutral-700 bg-neutral-800/30 flex items-center justify-center text-xs text-neutral-500 p-1";
 
 // --- Main Text Styling (Increased MAX_SIZE in clamp) ---
-const responsiveFontSize = "text-[clamp(1.25rem,_0.75rem_+_3vw,_3.5rem)]";
-const mainTextStyle = `font-bold ${responsiveFontSize} tracking-tighter leading-none uppercase text-white whitespace-nowrap`;
+const responsiveFontSize = "text-[clamp(1rem,_0.5rem_+_2vw,_2.5rem)]";
+const mainTextStyle = `font-bold ${responsiveFontSize} tracking-tighter leading-tight uppercase text-white break-words`;
 
 // --- Styling for the LAST line ("INNOVATION DRIVES...") (Increased MAX_SIZE) ---
 const lastLineResponsiveFontSize = "text-[clamp(1.25rem,_0.75rem_+_3vw,_3.5rem)]";
-const lastLineTextStyle = `font-bold ${lastLineResponsiveFontSize} tracking-tighter leading-none uppercase text-white whitespace-nowrap`;
+const lastLineTextStyle = `font-bold ${lastLineResponsiveFontSize} tracking-tighter leading-tight uppercase text-white break-words`;
 
 // Blue text styling (Increased)
 const blueResponsiveFontSize = "text-[clamp(1rem,_0.5rem_+_2vw,_2.25rem)]";
@@ -24,14 +24,17 @@ const blueTextStyle = `font-bold ${blueResponsiveFontSize} text-blue-500 leading
 // Added 'export' to the const declaration
 export const BigTextGrid: React.FC = () => {
     return (
-        <div className="relative bg-black text-white min-h-screen flex flex-col justify-center items-center py-16 sm:py-24 px-2">
-            <div aria-hidden="true" className="absolute top-0 left-0 w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] md:w-[400px] md:h-[400px] border border-neutral-800 rounded-full -translate-x-1/2 -translate-y-1/2" />
-            <div aria-hidden="true" className="absolute bottom-0 right-0 w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] md:w-[400px] md:h-[400px] border border-neutral-800 rounded-full translate-x-1/2 translate-y-1/2" />
+        <div className="relative bg-black text-white min-h-screen flex flex-col justify-center items-center py-16 sm:py-24 px-2 overflow-hidden">
+            {/* Decorative circles container */}
+            <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute top-0 left-0 w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] md:w-[400px] md:h-[400px] border border-neutral-800 rounded-full -translate-x-1/2 -translate-y-1/2" />
+                <div className="absolute bottom-0 right-0 w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] md:w-[400px] md:h-[400px] border border-neutral-800 rounded-full translate-x-1/2 translate-y-1/2" />
+            </div>
 
-            <div className="relative z-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-5xl px-0">
+            <div className="relative z-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-5xl px-4 overflow-hidden">
                 <div className="flex flex-col space-y-2 sm:space-y-3 md:space-y-4">
                     {/* ----- ROW 1: "WE CRAFT DIGITAL" + Image Placeholder ----- */}
-                    <div className="flex items-center justify-between space-x-3 sm:space-x-4">
+                    <div className="flex items-center justify-between space-x-3 sm:space-x-4 overflow-hidden">
                         <h1 className={`${mainTextStyle} flex-shrink min-w-0`}>
                             WE CRAFT DIGITAL
                         </h1>

@@ -30,16 +30,18 @@ export const ContactCallToAction: React.FC<ContactCallToActionProps> = ({
   return (
     <section
       id={id}
-      className="relative bg-black text-white min-h-[70vh] sm:min-h-[80vh] flex flex-col justify-center items-center py-16 sm:py-20 px-4"
+      className="relative bg-black text-white min-h-[70vh] sm:min-h-[80vh] flex flex-col justify-center items-center py-16 sm:py-20 px-4 overflow-hidden"
     >
-      <div
-        aria-hidden
-        className="absolute top-0 left-0 w-[150px] h-[150px] sm:w-[250px] sm:h-[250px] md:w-[350px] md:h-[350px] border border-neutral-800 rounded-full -translate-x-1/3 -translate-y-1/3 opacity-40"
-      />
-      <div
-        aria-hidden
-        className="absolute bottom-0 right-0 w-[150px] h-[150px] sm:w-[250px] sm:h-[250px] md:w-[350px] md:h-[350px] border border-neutral-800 rounded-full translate-x-1/3 translate-y-1/3 opacity-40"
-      />
+      <div className="absolute inset-0 overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute top-0 left-0 w-[150px] h-[150px] sm:w-[250px] sm:h-[250px] md:w-[350px] md:h-[350px] border border-neutral-800 rounded-full -translate-x-1/2 -translate-y-1/2 opacity-40"
+        />
+        <div
+          aria-hidden
+          className="absolute bottom-0 right-0 w-[150px] h-[150px] sm:w-[250px] sm:h-[250px] md:w-[350px] md:h-[350px] border border-neutral-800 rounded-full translate-x-1/2 translate-y-1/2 opacity-40"
+        />
+      </div>
 
       <div className="relative z-10 w-full max-w-4xl text-left space-y-6">
         {/* ROW 1 */}

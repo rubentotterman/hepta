@@ -1,7 +1,7 @@
 {
-  "/om-oss/page": "app/om-oss/page.js",
-  "/privacy/page": "app/privacy/page.js",
   "/page": "app/page.js",
+  "/api/stripe/create-customer-for-user/route": "app/api/stripe/create-customer-for-user/route.js",
+  "/tjenester/[slug]/page": "app/tjenester/[slug]/page.js",
   "/tjenester/page": "app/tjenester/page.js",
   "/contact/page": "app/contact/page.js"
 }

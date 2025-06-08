@@ -33,7 +33,7 @@ export default function OmOss() {
     const teknologiSentrumAltText = "Abstrakt representasjon av teknologi";
 
     return (
-        <div>
+        <div className="w-full overflow-x-hidden">
             {/* Video Hero Section (takes 50vh) */}
             <VideoHero
                 videoSrc="/videos/omosshero.mp4"
@@ -43,9 +43,9 @@ export default function OmOss() {
 
             {/* Introductory Text Section - Modified for half-page height */}
             <section
-                className="min-h-[50vh] flex flex-col items-center justify-center text-center py-12 sm:py-16 bg-background text-foreground px-4"
+                className="min-h-[50vh] flex flex-col items-center justify-center text-center py-12 sm:py-16 bg-background text-foreground px-4 overflow-x-hidden"
             >
-                <div className="container">
+                <div className="container mx-auto max-w-[100vw]">
                     <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
                         HEPTA er din partner for digital transformasjon.
                     </h2>

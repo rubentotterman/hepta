@@ -4,10 +4,11 @@ import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 const services = {
-  videoproduksjon: {
-    title: "innholdsproduksjon",
+  Videoproduksjon: {
+    title: "Videoproduksjon",
     description: "Innhold som skaper inntrykk, salg eller engasjement. Uansett ditt behov skaper vi innhold til anledningen",
     content: `Teknologi er kjernen i moderne forretningsutvikling. Vårt team av eksperter kombinerer innovativ tenkning med solid teknisk kompetanse for å skape løsninger som gir din virksomhet et konkurransefortrinn.
 
@@ -18,9 +19,10 @@ const services = {
     • Animasjon og motion graphics
     
     Vi lager innholdet som folket elsker å dele. Fra reklamefilmer til bedriftsvideoer, vi skaper innhold som engasjerer og konverterer.`,
+    image: "/IMG_9003.JPG"
   },
-  utvikling: {
-    title: "App-utvikling",
+  Utvikling: {
+    title: "Utvikling",
     description: "Fra idé til lansering, vi skaper brukervennlige og effektive applikasjoner.",
     content: `Vi utvikler mobile og web-applikasjoner som møter dine forretningsbehov og engasjerer brukerne dine. Med fokus på brukeropplevelse og teknisk kvalitet, skaper vi applikasjoner som gir verdi.
 
@@ -30,6 +32,7 @@ const services = {
     • Progressive Web Apps (PWA)
     • UX/UI-design
     • App-vedlikehold og support`,
+    image: "/technology.jpg"
   },
   AI: {
     title: "AI og automasjon",
@@ -42,6 +45,7 @@ const services = {
     • Computer Vision
     • Chatbots og automatisering
     • AI-strategi og implementering`,
+    image: "/group11.png"
   },
   "innsikt-og-analyse": {
     title: "Innsikt og analyse",
@@ -54,6 +58,7 @@ const services = {
     • Markedsanalyse
     • Kundeanalyse
     • Rapportering og dashboards`,
+    image: "/tjenester/analyse.jpg"
   },
   "kommunikasjon-og-pr": {
     title: "Kommunikasjon og PR",
@@ -66,9 +71,10 @@ const services = {
     • Krisekommunikasjon
     • Intern kommunikasjon
     • Digital PR og omdømmebygging`,
+    image: "/tjenester/kommunikasjon.jpg"
   },
   Digitalmarkedsforing: {
-    title: "Betalt annonsering",
+    title: "Digital markedsføring",
     description: "Vi hjelper deg med kampanjer som konverterer.",
     content: `Betalt annonsering er en effektiv måte å nå ut til målgruppen din på. Vi hjelper deg med å utvikle og implementere annonseringsstrategier som gir resultater.
     
@@ -82,6 +88,7 @@ const services = {
     • Sosiale medier-innhold
     • Nyhetsbrev og e-post
     • Content marketing-strategi`,
+    image: "/digmark.jpg"
   },
   design: {
     title: "Design",
@@ -94,6 +101,7 @@ const services = {
     • Identitetsdesign
     • Emballasjedesign
     • Digital design`,
+    image: "/tjenester/design.jpg"
   },
   Radgivning: {
     title: "Rådgivning",
@@ -106,6 +114,7 @@ const services = {
     • PR og kommunikasjonsrådgivning
     • Målgruppeanalyse
     • Strategisk rådgivning`,
+    image: "/tjenester/radgivning.jpg"
   },
   "film-og-animasjon": {
     title: "Film og animasjon",
@@ -118,6 +127,7 @@ const services = {
     • Bedriftspresentasjoner
     • Sosiale medier-innhold
     • Live-action og animasjon`,
+    image: "/tjenester/film.jpg"
   },
   "faglig-pafyll": {
     title: "Faglig påfyll",
@@ -130,6 +140,7 @@ const services = {
     • Skreddersydde opplæringsprogrammer
     • Seminarer og webinarer
     • Konsulentbistand`,
+    image: "/tjenester/kurs.jpg"
   },
 }
 
@@ -141,28 +152,44 @@ export default function ServicePage() {
   if (!service) return null
 
   return (
-    <div className="space-y-8 pb-20">
-      <div className="space-y-4">
-        <Link href="/tjenester" className="inline-flex items-center text-gray-400 hover:text-white">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Tilbake til tjenester
-        </Link>
-        <h1 className="text-4xl font-bold">{service.title}</h1>
-        <p className="text-xl text-gray-400">{service.description}</p>
-      </div>
+    <div className="container mx-auto px-4 py-24">
+      <Link href="/tjenester" className="inline-flex items-center text-gray-400 hover:text-white mb-8">
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Tilbake til tjenester
+      </Link>
 
-      <div className="prose prose-invert max-w-none">
-        {service.content.split("\n\n").map((paragraph, index) => (
-          <p key={index} className="whitespace-pre-line">
-            {paragraph}
-          </p>
-        ))}
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <h1 className="text-4xl font-bold">{service.title}</h1>
+            <p className="text-xl text-gray-400">{service.description}</p>
+          </div>
 
-      <div className="pt-8">
-        <Button asChild className="bg-orange-500 hover:bg-orange-600">
-          <Link href="/kontakt">Kontakt oss</Link>
-        </Button>
+          <div className="prose prose-invert max-w-none">
+            {service.content.split("\n\n").map((paragraph, index) => (
+              <p key={index} className="whitespace-pre-line">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+
+          <div className="pt-8">
+            <Button asChild className="bg-blue-600 hover:bg-blue-700">
+              <Link href="/contact">Kontakt oss</Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className="relative h-[400px] lg:h-[600px] rounded-lg overflow-hidden">
+          <Image
+            src={service.image}
+            alt={service.title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority
+          />
+        </div>
       </div>
     </div>
   )

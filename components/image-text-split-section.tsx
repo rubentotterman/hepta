@@ -54,7 +54,7 @@ export const ImageTextSplitSection: React.FC<ImageTextSplitSectionProps> = ({
     );
 
     return (
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-8 overflow-hidden">
             {imageOnLeft ? (
                 <>
                     {ImageBlock}
